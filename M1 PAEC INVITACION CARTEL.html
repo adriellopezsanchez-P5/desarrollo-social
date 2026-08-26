@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Ambiental 8-Bit | Evaluación Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mario: {
+                            red: '#E52521', blue: '#049CD8', green: '#43B047',
+                            yellow: '#FBD000', sky: '#5C94FC', water: '#004058',
+                            underground: '#000000', fire: '#C84C0C', castle: '#404040'
+                        }
+                    },
+                    fontFamily: {
+                        retro: ['"Press Start 2P"', 'cursive'],
+                        read: ['"Nunito"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* FONDOS DINÁMICOS */
+        body { transition: background 0.8s ease, background-color 0.8s ease; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        
+        .theme-overworld { background-color: #5C94FC; background-image: radial-gradient(white 15%, transparent 16%), radial-gradient(white 15%, transparent 16%); background-size: 60px 60px; background-position: 0 0, 30px 30px; }
+        .theme-underground { background-color: #000000; background-image: linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222), linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222); background-size: 60px 60px; background-position: 0 0, 30px 30px; }
+        .theme-water { background-color: #004058; background-image: radial-gradient(rgba(255,255,255,0.15) 10%, transparent 11%); background-size: 40px 40px; }
+        .theme-castle { background-color: #2b2b2b; background-image: linear-gradient(335deg, rgba(0,0,0,0.6) 15%, transparent 15%), linear-gradient(155deg, rgba(0,0,0,0.6) 15%, transparent 15%); background-size: 40px 40px; }
+        .theme-success { background-color: #43B047; background-image: radial-gradient(rgba(255,255,255,0.2) 15%, transparent 16%); background-size: 40px 40px; }
+
+        /* EFECTO CRT */
+        .crt::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px; z-index: 100; pointer-events: none;
+        }
+
+        /* COMPONENTES UI ESTILO 8-BITS */
+        .dialog-box {
+            background: rgba(0, 0, 0, 0.85); border: 4px solid white;
+            box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.5); color: white;
+            position: relative;
+        }
+        
+        .paper-box {
+            background: white; border: 4px solid black;
+            box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.6); color: black;
+        }
+
+        .mario-btn {
+            border: 4px solid black; box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3), 4px 4px 0px 0px black;
+            transition: all 0.1s; cursor: pointer; text-transform: uppercase;
+        }
+        .mario-btn:active { transform: translate(4px, 4px); box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3), 0px 0px 0px 0px black; }
+        .mario-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3), 4px 4px 0px 0px black; }
+
+        .textarea-retro { 
+            border: none; background: transparent; font-family: 'Nunito', sans-serif; 
+            font-size: 14px; font-weight: 700; color: #333; line-height: 1.5; resize: none; width: 100%;
+        }
+        .textarea-retro:focus { outline: none; }
+        
+        .input-retro {
+            border: none; background: transparent; font-family: 'Nunito', sans-serif; 
+            font-size: 16px; font-weight: 700; color: #333; width: 100%; border-bottom: 4px solid black; padding: 8px;
+        }
+        .input-retro:focus { outline: none; background-color: #FBD000; }
+
+        /* ANIMACIONES */
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+
+        .fade-in { animation: fadeIn 0.4s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .hidden-step { display: none !important; }
+
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .pixel-text-shadow { text-shadow: 2px 2px 0px black; }
+
+        /* SCROLLBAR RETRO */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #000; border-left: 2px solid #fff; }
+        ::-webkit-scrollbar-thumb { background: #E52521; border: 2px solid #fff; }
+
+        /* BARRAS DE EVALUACIÓN */
+        .score-bar { height: 16px; background: #333; border: 2px solid #fff; margin-top: 5px; position: relative; overflow: hidden; }
+        .score-fill { height: 100%; transition: width 1s ease-out; width: 0%; }
+
+        /* ESTILOS PARA IMPRESIÓN */
+        @media print {
+            body { background: white !important; }
+            .crt::before { display: none; }
+            .no-print { display: none !important; }
+            .print-area { width: 100%; margin: 0; padding: 0; }
+            .page-break { page-break-after: always; }
+            .paper-box { box-shadow: none; border: 2px solid black; }
+            .score-bar { border: 2px solid black; background: #ddd; }
+            .score-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+
+        /* CALIFICACIÓN GRANDE */
+        .big-grade {
+            font-size: 4rem;
+            font-family: 'Press Start 2P', cursive;
+            text-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+        }
+        @media (max-width: 640px) {
+            .big-grade { font-size: 2.5rem; }
+        }
+
+        /* BLOQUEO DE COPIA */
+        .no-copy {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        .no-copy input, .no-copy textarea {
+            user-select: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+        }
+
+        /* INSTRUCCIONES EN CAMPOS */
+        .field-hint {
+            font-size: 10px;
+            color: #666;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            margin-top: 2px;
+            padding: 2px 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="theme-overworld crt no-copy">
+
+    <!-- BLOQUEO DE COPIAR - JavaScript -->
+    <script>
+        // Bloquear copia, pegado y arrastre
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            alert('✋ No está permitido copiar texto. Escribe tu propia respuesta.');
+        });
+        
+        document.addEventListener('paste', function(e) {
+            e.preventDefault();
+            alert('✋ No está permitido pegar texto. Escribe tu propia respuesta.');
+        });
+        
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+        });
+
+        // Bloquear menú contextual (clic derecho)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Bloquear Ctrl+C, Ctrl+V, Ctrl+X
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'a')) {
+                e.preventDefault();
+                alert('✋ Acción no permitida. Escribe tus propias respuestas.');
+            }
+        });
+    </script>
+
+    <!-- HUD -->
+    <div id="hud" class="fixed top-4 left-4 right-4 flex justify-between z-50 pointer-events-none px-2 md:px-8 hidden-step no-print">
+        <div class="bg-transparent text-white font-retro text-xs md:text-sm drop-shadow-[2px_2px_0_rgba(0,0,0,1)] flex flex-col">
+            <span class="text-mario-yellow">JUGADOR 1</span>
+            <span id="hud-name" class="mt-1 uppercase text-shadow">---</span>
+        </div>
+        <div class="bg-transparent text-white font-retro text-xs md:text-sm drop-shadow-[2px_2px_0_rgba(0,0,0,1)] flex flex-col items-end">
+            <span class="text-mario-green">MUNDO / TIEMPO</span>
+            <span class="mt-1 flex items-center gap-4 text-xl text-white">
+                <span id="hud-world">1-1</span> 
+                <span id="hud-time" class="text-mario-yellow text-sm">00:00</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="min-h-screen flex items-center justify-center p-4 pt-20 pb-20">
+        <div class="w-full max-w-6xl relative z-10">
+
+            <!-- STEP 0: INICIO -->
+            <section id="step-0" class="fade-in block">
+                <div class="text-center mb-8 float-anim">
+                    <div class="inline-block bg-black p-4 border-4 border-white shadow-[6px_6px_0_rgba(0,0,0,0.5)] mb-6">
+                        <span class="text-5xl">🌍</span>
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-retro text-mario-yellow mt-4 leading-tight" style="text-shadow: 4px 4px 0px black;">
+                        MUNDO AMBIENTAL
+                    </h1>
+                    <h2 class="text-xl font-retro text-white mt-4" style="text-shadow: 2px 2px 0px black;">EVALUACIÓN INTELIGENTE</h2>
+                    
+                    <div class="bg-mario-red text-white font-retro text-[9px] md:text-xs inline-block p-4 mt-6 border-4 border-black shadow-[4px_4px_0_black] leading-relaxed text-left max-w-lg">
+                        ⚠️ INSTRUCCIONES JUGADOR:<br><br>
+                        - Actividad 100% INDIVIDUAL.<br>
+                        - Tus respuestas serán analizadas por un motor heurístico anti-spam.<br>
+                        - Se evaluará: Extensión, Tiempo de reflexión y Uso de Vocabulario Clave.<br>
+                        - <strong>No está permitido copiar o pegar texto.</strong>
+                    </div>
+                </div>
+
+                <div class="paper-box p-6 md:p-8 rounded-lg max-w-md mx-auto mt-6">
+                    <div class="mb-4">
+                        <label class="font-retro text-[10px] text-mario-blue block mb-2">NOMBRE COMPLETO:</label>
+                        <input type="text" id="in-name" class="input-retro uppercase" placeholder="APELLIDOS Y NOMBRES" oninput="checkLogin()">
+                    </div>
+                    <div>
+                        <label class="font-retro text-[10px] text-mario-blue block mb-2">GRUPO:</label>
+                        <input type="text" id="in-group" class="input-retro uppercase" placeholder="EJ. 401" oninput="checkLogin()">
+                    </div>
+                    
+                    <button id="btn-start" onclick="goToStep(1)" disabled class="w-full bg-mario-green text-white font-retro py-4 mt-8 mario-btn text-sm">
+                        START MISSION ➔
+                    </button>
+                </div>
+            </section>
+
+            <!-- STEP 1: INVITACIÓN -->
+            <section id="step-1" class="hidden-step fade-in">
+                <div class="text-center drop-shadow-[2px_2px_0_rgba(0,0,0,1)] mb-6">
+                    <h2 class="text-white font-retro text-xl tracking-widest">NIVEL 1: LA INVITACIÓN</h2>
+                    <p class="text-mario-yellow font-retro text-[10px] mt-2 uppercase">Convence a la comunidad</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Formulario -->
+                    <div class="paper-box p-6 rounded-lg space-y-5 h-fit">
+                        <div class="dialog-box p-3 rounded mb-4 border-mario-blue">
+                            <p class="font-retro text-[8px] text-white leading-relaxed">
+                                <span class="text-mario-yellow">MISIÓN:</span> Redacta una invitación para la recolección de residuos. Debe incluir valores e influencia positiva. <br><br>⚠️ CUMPLE LOS CARACTERES MÍNIMOS Y USA PALABRAS CLAVE.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="font-retro text-[9px] text-mario-blue block mb-2">1. PRESENTACIÓN (MÍN. 20 LETRAS)</label>
+                            <input type="text" id="inv-intro" oninput="updateInvitation(); checkLength(this, 20, 'c-intro')" class="input-retro text-sm" placeholder="Ej: Hola, soy estudiante de la escuela...">
+                            <div class="field-hint">💡 Escribe quién eres y por qué haces esta invitación</div>
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-intro">0</span>/20</div>
+                        </div>
+                        <div>
+                            <label class="font-retro text-[9px] text-mario-blue block mb-2">2. DESTINATARIO (MÍN. 10 LETRAS)</label>
+                            <input type="text" id="inv-to" oninput="updateInvitation(); checkLength(this, 10, 'c-to')" class="input-retro text-sm" placeholder="Ej: Comunidad escolar de la secundaria...">
+                            <div class="field-hint">💡 ¿A quién va dirigida tu invitación?</div>
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-to">0</span>/10</div>
+                        </div>
+                        <div class="bg-yellow-50 p-3 border-2 border-dashed border-gray-400">
+                            <label class="font-retro text-[9px] text-mario-blue block mb-2">3. MENSAJE CENTRAL (MÍN. 250 LETRAS)</label>
+                            <textarea id="inv-body" oninput="updateInvitation(); checkLength(this, 250, 'c-body')" rows="6" class="textarea-retro" placeholder="Ej: Te invito a reflexionar sobre la importancia de separar residuos... Desarrolla tu mensaje con argumentos sólidos, valores y una convocatoria clara. Menciona el impacto positivo en el medio ambiente y la comunidad..."></textarea>
+                            <div class="field-hint">💡 Desarrolla tu invitación con argumentos, valores y una convocatoria clara. Mínimo 250 letras.</div>
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-body">0</span>/250</div>
+                        </div>
+
+                        <div id="error-1" class="hidden bg-mario-red text-white p-3 rounded font-retro text-[8px] border-2 border-black text-center mt-2">FALTAN LETRAS PARA AVANZAR</div>
+                        
+                        <button onclick="validateStep1()" class="w-full bg-mario-red text-white font-retro py-3 mt-2 rounded mario-btn text-xs">
+                            AVANZAR AL CARTEL ➔
+                        </button>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="dialog-box p-6 rounded-lg flex items-center justify-center relative overflow-hidden bg-mario-water border-8 border-gray-400">
+                        <div class="paper-box w-full max-w-sm aspect-[3/4] p-6 relative z-10 flex flex-col justify-between shadow-[8px_8px_0_rgba(0,0,0,0.5)]">
+                            <div class="text-center border-b-4 border-black pb-4 mb-4">
+                                <h3 class="font-retro text-sm text-mario-red mb-2">INVITACIÓN OFICIAL</h3>
+                                <p class="text-[9px] font-retro text-gray-500">PARA:</p>
+                                <p id="prev-inv-to" class="font-read text-sm font-bold text-black uppercase mt-1">...</p>
+                            </div>
+
+                            <div class="flex-grow text-center">
+                                <p id="prev-inv-intro" class="font-read text-sm text-mario-blue mb-2 font-bold">...</p>
+                                <p id="prev-inv-body" class="font-read text-sm text-gray-800 leading-relaxed italic">Empieza a escribir para previsualizar...</p>
+                            </div>
+
+                            <div class="text-center border-t-4 border-black pt-4 mt-4">
+                                <p class="text-[8px] font-retro text-gray-500">ATENTAMENTE</p>
+                                <p id="prev-inv-author" class="font-retro text-[10px] text-mario-green mt-2">JUGADOR</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 2: CARTEL -->
+            <section id="step-2" class="hidden-step fade-in">
+                <div class="text-center drop-shadow-[2px_2px_0_rgba(0,0,0,1)] mb-6">
+                    <h2 class="text-white font-retro text-xl tracking-widest">NIVEL 2: PLAN DE ACCIÓN</h2>
+                    <p class="text-mario-yellow font-retro text-[10px] mt-2 uppercase">Cartel Informativo Individual</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Formulario -->
+                    <div class="paper-box p-6 rounded-lg space-y-4 h-fit max-h-[80vh] overflow-y-auto">
+                        
+                        <div>
+                            <label class="font-retro text-[9px] text-mario-blue block mb-2">TÍTULO DEL CARTEL (MÍN. 15 LETRAS)</label>
+                            <input type="text" id="pos-title" oninput="updatePoster(); checkLength(this, 15, 'c-title')" class="input-retro text-sm font-bold" placeholder="Ej: El Poder del Reciclaje en Mi Comunidad">
+                            <div class="field-hint">💡 Crea un título atractivo e impactante</div>
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-title">0</span>/15</div>
+                        </div>
+
+                        <div class="bg-gray-100 p-4 border-2 border-black rounded">
+                            <h4 class="font-retro text-[9px] text-mario-underground mb-3">¿CÓMO CONTRIBUYEN? (MÍN. 100 LETRAS EN TOTAL)</h4>
+                            <div class="field-hint mb-2">💡 Escribe 3 acciones específicas por cada grupo (mínimo 100 letras en total entre los 3 campos)</div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="font-retro text-[8px] text-mario-green block mb-1">LA FAMILIA - 3 ACCIONES</label>
+                                    <textarea id="pos-family" oninput="updatePoster(); checkTotalLength()" rows="3" class="textarea-retro p-2 border-2 border-gray-300 w-full bg-white" placeholder="1. Separar residuos orgánicos e inorgánicos en casa. 2. Reutilizar envases y materiales. 3. Participar en campañas de reciclaje comunitarias."></textarea>
+                                    <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-fam">0</span></div>
+                                </div>
+                                <div>
+                                    <label class="font-retro text-[8px] text-mario-blue block mb-1">LOS AMIGOS - 3 ACCIONES</label>
+                                    <textarea id="pos-friends" oninput="updatePoster(); checkTotalLength()" rows="3" class="textarea-retro p-2 border-2 border-gray-300 w-full bg-white" placeholder="1. Promover campañas de reciclaje en la escuela. 2. Compartir información sobre cuidado ambiental. 3. Organizar brigadas de limpieza."></textarea>
+                                    <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-fri">0</span></div>
+                                </div>
+                                <div>
+                                    <label class="font-retro text-[8px] text-mario-red block mb-1">LA COMUNIDAD - 3 ACCIONES</label>
+                                    <textarea id="pos-community" oninput="updatePoster(); checkTotalLength()" rows="3" class="textarea-retro p-2 border-2 border-gray-300 w-full bg-white" placeholder="1. Organizar jornadas de limpieza y reciclaje. 2. Crear centros de acopio de residuos. 3. Implementar programas de educación ambiental."></textarea>
+                                    <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-com">0</span></div>
+                                </div>
+                            </div>
+                            <div id="total-contribuciones" class="text-right font-retro text-[8px] text-mario-blue mt-2">TOTAL: <span id="total-contrib">0</span>/100 LETRAS</div>
+                        </div>
+
+                        <div class="bg-yellow-50 p-4 border-2 border-black rounded">
+                            <h4 class="font-retro text-[9px] text-mario-yellow mb-3" style="text-shadow: 1px 1px 0px black;">IMPACTO EN BIENESTAR (MÍN. 40 LETRAS C/U)</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <input type="text" id="pos-fisico" oninput="updatePoster(); checkLength(this, 40, 'c-fis')" class="input-retro text-xs p-1" placeholder="Físico: Evitamos infecciones, mejoramos la salud respiratoria...">
+                                    <div class="field-hint">💡 Beneficios para la salud física (mínimo 40 letras)</div>
+                                    <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-fis">0</span>/40</div>
+                                </div>
+                                <div>
+                                    <input type="text" id="pos-mental" oninput="updatePoster(); checkLength(this, 40, 'c-men')" class="input-retro text-xs p-1" placeholder="Mental: Reducimos el estrés, mejoramos la concentración...">
+                                    <div class="field-hint">💡 Beneficios para la salud mental (mínimo 40 letras)</div>
+                                    <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-men">0</span>/40</div>
+                                </div>
+                                <div>
+                                    <input type="text" id="pos-emocional" oninput="updatePoster(); checkLength(this, 40, 'c-emo')" class="input-retro text-xs p-1" placeholder="Emocional: Sentimos orgullo, satisfacción personal...">
+                                    <div class="field-hint">💡 Beneficios para el bienestar emocional (mínimo 40 letras)</div>
+                                    <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-emo">0</span>/40</div>
+                                </div>
+                                <div>
+                                    <input type="text" id="pos-social" oninput="updatePoster(); checkLength(this, 40, 'c-soc')" class="input-retro text-xs p-1" placeholder="Social: Trabajo en equipo, colaboración, sentido de comunidad...">
+                                    <div class="field-hint">💡 Beneficios para las relaciones sociales (mínimo 40 letras)</div>
+                                    <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-soc">0</span>/40</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="error-2" class="hidden bg-mario-red text-white p-3 rounded font-retro text-[8px] border-2 border-black text-center mt-2">COMPLETA TODOS LOS CAMPOS</div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="goToStep(1)" class="bg-gray-400 text-white font-retro py-3 px-4 rounded mario-btn text-xs">
+                                ➔ BACK
+                            </button>
+                            <button onclick="validateStep2()" class="w-full bg-mario-yellow text-black font-retro py-3 rounded mario-btn text-xs">
+                                EVALUAR Y GENERAR ⭐
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Preview Cartel -->
+                    <div class="dialog-box p-4 rounded-lg flex items-center justify-center bg-mario-underground">
+                        <div class="bg-white w-full max-w-sm aspect-[3/4] p-4 relative border-4 border-black flex flex-col">
+                            <div class="text-center mb-3 border-b-4 border-mario-blue pb-2">
+                                <h1 id="prev-pos-title" class="font-retro text-sm text-mario-red uppercase leading-tight">TÍTULO DEL CARTEL</h1>
+                                <p class="text-[7px] font-retro text-gray-500 mt-1">RESIDUOS SÓLIDOS Y VIDA SALUDABLE</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-2 flex-grow">
+                                <div class="border-l-4 border-mario-green pl-2">
+                                    <h3 class="text-[8px] font-retro text-mario-green mb-1">FAMILIA</h3>
+                                    <p id="prev-pos-family" class="font-read text-[10px] text-gray-700 leading-tight">...</p>
+                                </div>
+                                <div class="border-l-4 border-mario-blue pl-2">
+                                    <h3 class="text-[8px] font-retro text-mario-blue mb-1">AMIGOS</h3>
+                                    <p id="prev-pos-friends" class="font-read text-[10px] text-gray-700 leading-tight">...</p>
+                                </div>
+                                <div class="border-l-4 border-mario-red pl-2">
+                                    <h3 class="text-[8px] font-retro text-mario-red mb-1">COMUNIDAD</h3>
+                                    <p id="prev-pos-community" class="font-read text-[10px] text-gray-700 leading-tight">...</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 bg-gray-100 p-2 border-2 border-black">
+                                <h3 class="text-[8px] font-retro text-black text-center mb-2">BIENESTAR</h3>
+                                <div class="grid grid-cols-2 gap-1">
+                                    <div class="bg-white p-1 text-[8px] font-read font-bold border border-gray-300"><span class="text-mario-red">FÍS:</span> <span id="prev-pos-fisico" class="font-normal">...</span></div>
+                                    <div class="bg-white p-1 text-[8px] font-read font-bold border border-gray-300"><span class="text-mario-blue">MEN:</span> <span id="prev-pos-mental" class="font-normal">...</span></div>
+                                    <div class="bg-white p-1 text-[8px] font-read font-bold border border-gray-300"><span class="text-mario-green">EMO:</span> <span id="prev-pos-emocional" class="font-normal">...</span></div>
+                                    <div class="bg-white p-1 text-[8px] font-read font-bold border border-gray-300"><span class="text-mario-yellow">SOC:</span> <span id="prev-pos-social" class="font-normal">...</span></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-2 text-center border-t-2 border-black pt-1">
+                                <p id="prev-pos-author" class="font-retro text-[8px] text-black uppercase">AUTOR</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 3: EVALUANDO -->
+            <section id="step-3" class="hidden-step fade-in text-center pt-10">
+                <div class="dialog-box p-10 max-w-md mx-auto relative overflow-hidden bg-mario-castle">
+                    <div class="relative z-10">
+                        <h2 class="text-2xl font-retro text-mario-yellow mb-6">SISTEMA EVALUANDO...</h2>
+                        
+                        <div class="text-left font-retro text-[8px] space-y-4 mb-8 text-gray-300">
+                            <p id="calc-length">[*] EXTENSIÓN Y TIEMPO..... <span class="text-white animate-pulse">Calculando</span></p>
+                            <p id="calc-vocab">[*] VOCABULARIO CLAVE...... <span class="text-white animate-pulse">Buscando</span></p>
+                            <p id="calc-spam">[*] ANÁLISIS ANTI-SPAM..... <span class="text-white animate-pulse">Revisando</span></p>
+                        </div>
+                        
+                        <div class="mt-8 border-4 border-white h-6 p-1 bg-black w-full">
+                            <div id="progress-bar" class="bg-mario-green h-full w-0 transition-all duration-[4000ms] ease-linear"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 4: REPORTE FINAL -->
+            <section id="step-4" class="hidden-step fade-in">
+                <div class="text-center mb-6 no-print">
+                    <h2 class="text-3xl font-retro text-white pixel-text-shadow mb-2">¡MISIÓN COMPLETADA!</h2>
+                    <p class="text-mario-yellow font-retro text-xs drop-shadow-md">Guarda tu reporte como evidencia.</p>
+                    <div class="mt-4 flex justify-center gap-4">
+                        <button onclick="window.print()" class="bg-mario-green text-white font-retro py-3 px-6 rounded mario-btn text-sm">
+                            IMPRIMIR / PDF 🖨️
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenedor Impresión -->
+                <div class="print-area space-y-8 bg-white p-8 border-8 border-black">
+                    
+                    <!-- CABECERA Y RESULTADO ALGORÍTMICO -->
+                    <div class="border-b-8 border-black pb-6 mb-6">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                            
+                            <div class="text-center md:text-left flex-1">
+                                <h1 class="font-retro text-2xl text-black uppercase mb-2">REPORTE DE MISIÓN</h1>
+                                <p class="font-read font-bold text-gray-600">Manejo de Residuos Sólidos y Vida Saludable</p>
+                                <div class="mt-4 font-retro text-[10px] space-y-2">
+                                    <p>JUGADOR: <span id="final-name" class="text-mario-blue text-sm"></span></p>
+                                    <p>GRUPO: <span id="final-group" class="text-mario-red text-sm"></span></p>
+                                    <p>TIEMPO: <span id="final-time" class="text-black"></span></p>
+                                </div>
+                            </div>
+
+                            <!-- Bloque de Calificación - Versión 10 puntos -->
+                            <div class="bg-black text-white p-4 border-4 border-gray-400 w-full md:w-1/2 rounded-sm shadow-md">
+                                <p class="font-retro text-[9px] text-mario-yellow mb-3 text-center">PUNTAJE DEL SISTEMA</p>
+                                
+                                <div class="mb-2">
+                                    <div class="flex justify-between font-retro text-[6px] mb-1">
+                                        <span>RIQUEZA LÉXICA</span><span id="score-lex">0/3</span>
+                                    </div>
+                                    <div class="score-bar"><div id="bar-lex" class="score-fill bg-mario-sky"></div></div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <div class="flex justify-between font-retro text-[6px] mb-1">
+                                        <span>VOCABULARIO CLAVE</span><span id="score-voc">0/4</span>
+                                    </div>
+                                    <div class="score-bar"><div id="bar-voc" class="score-fill bg-mario-green"></div></div>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <div class="flex justify-between font-retro text-[6px] mb-1">
+                                        <span>ESTRUCTURA & TIEMPO</span><span id="score-est">0/3</span>
+                                    </div>
+                                    <div class="score-bar"><div id="bar-est" class="score-fill bg-mario-red"></div></div>
+                                </div>
+
+                                <!-- CALIFICACIÓN FINAL EN GRANDE -->
+                                <div class="text-center mt-4 border-t-2 border-dashed border-gray-600 pt-3">
+                                    <p class="font-retro text-[7px] text-gray-400">CALIFICACIÓN FINAL</p>
+                                    <p id="final-grade" class="big-grade text-mario-yellow"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Feedback del Sistema -->
+                        <div class="mt-6 bg-yellow-50 border-2 border-dashed border-mario-yellow p-4">
+                            <p class="font-retro text-[8px] text-black mb-2 uppercase">Comentarios del Evaluador Automático:</p>
+                            <ul id="feedback-list" class="font-read text-xs text-gray-800 list-disc pl-5 space-y-1">
+                                <!-- Inyectado por JS -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Invitación Final -->
+                    <div class="w-full max-w-2xl mx-auto paper-box p-8 relative">
+                        <div class="absolute top-0 left-0 w-full h-4 bg-mario-red"></div>
+                        <h2 class="font-retro text-xl text-black mb-6 text-center mt-2">INVITACIÓN OFICIAL</h2>
+                        
+                        <div class="font-read space-y-4">
+                            <div>
+                                <p class="text-[10px] font-retro text-gray-500 mb-1">DESTINO:</p>
+                                <p id="final-inv-to" class="text-lg font-bold uppercase border-b-2 border-gray-200 pb-1"></p>
+                            </div>
+                            
+                            <p id="final-inv-intro" class="text-base font-bold text-mario-blue"></p>
+                            <p id="final-inv-body" class="text-sm text-gray-700 italic bg-gray-50 p-4 border-l-4 border-mario-yellow whitespace-pre-wrap"></p>
+                        </div>
+                        
+                        <div class="border-t-4 border-black pt-4 mt-6 text-center">
+                            <p class="text-[8px] font-retro text-gray-400">EMISOR</p>
+                            <p id="final-inv-author" class="font-retro text-[10px] text-black mt-1"></p>
+                        </div>
+                    </div>
+
+                    <div class="page-break"></div>
+
+                    <!-- Cartel Final -->
+                    <div class="w-full max-w-3xl mx-auto mt-8 md:mt-0">
+                        <div class="paper-box p-8 relative">
+                            <div class="text-center mb-6 border-b-4 border-black pb-4">
+                                <h1 id="final-pos-title" class="font-retro text-xl text-mario-red uppercase leading-tight mb-2"></h1>
+                                <p class="font-read text-xs font-bold text-gray-600 uppercase tracking-widest">Plan de Acción Estratégico</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-gray-50 p-4 border-t-8 border-mario-green shadow-sm">
+                                    <h3 class="font-retro text-[8px] text-mario-green mb-2">LA FAMILIA</h3>
+                                    <p id="final-pos-family" class="font-read text-xs font-semibold text-gray-700 whitespace-pre-wrap"></p>
+                                </div>
+                                <div class="bg-gray-50 p-4 border-t-8 border-mario-blue shadow-sm">
+                                    <h3 class="font-retro text-[8px] text-mario-blue mb-2">LOS AMIGOS</h3>
+                                    <p id="final-pos-friends" class="font-read text-xs font-semibold text-gray-700 whitespace-pre-wrap"></p>
+                                </div>
+                                <div class="bg-gray-50 p-4 border-t-8 border-mario-red shadow-sm">
+                                    <h3 class="font-retro text-[8px] text-mario-red mb-2">LA COMUNIDAD</h3>
+                                    <p id="final-pos-community" class="font-read text-xs font-semibold text-gray-700 whitespace-pre-wrap"></p>
+                                </div>
+                            </div>
+
+                            <div class="bg-white border-4 border-black p-4">
+                                <h3 class="font-retro text-[10px] text-black text-center mb-4">IMPACTO EN EL BIENESTAR</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div class="flex gap-2 items-start"><span class="font-retro text-[8px] text-mario-red mt-1">FÍSICO:</span> <span id="final-pos-fisico" class="font-read text-xs font-bold"></span></div>
+                                    <div class="flex gap-2 items-start"><span class="font-retro text-[8px] text-mario-blue mt-1">MENTAL:</span> <span id="final-pos-mental" class="font-read text-xs font-bold"></span></div>
+                                    <div class="flex gap-2 items-start"><span class="font-retro text-[8px] text-mario-green mt-1">EMOCIONAL:</span> <span id="final-pos-emocional" class="font-read text-xs font-bold"></span></div>
+                                    <div class="flex gap-2 items-start"><span class="font-retro text-[8px] text-mario-yellow mt-1" style="text-shadow: 1px 1px 0px black;">SOCIAL:</span> <span id="final-pos-social" class="font-read text-xs font-bold"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        let startTime;
+        let timerInterval;
+
+        // Validar Login
+        function checkLogin() {
+            const n = document.getElementById('in-name').value.trim();
+            const g = document.getElementById('in-group').value.trim();
+            const btn = document.getElementById('btn-start');
+            btn.disabled = !(n.length > 3 && g.length > 1);
+        }
+
+        // Reloj HUD
+        function updateClock() {
+            const now = new Date();
+            const diff = Math.floor((now - startTime) / 1000);
+            const m = String(Math.floor(diff / 60)).padStart(2, '0');
+            const s = String(diff % 60).padStart(2, '0');
+            document.getElementById('hud-time').innerText = `${m}:${s}`;
+        }
+
+        // Navegación General
+        function goToStep(step) {
+            if(step === 1) {
+                const name = document.getElementById('in-name').value;
+                document.getElementById('hud-name').innerText = name.split(' ')[0].substring(0,8);
+                document.getElementById('prev-inv-author').innerText = name;
+                document.getElementById('prev-pos-author').innerText = name;
+                
+                document.getElementById('hud').classList.remove('hidden-step');
+                document.body.className = "theme-water crt";
+                document.getElementById('hud-world').innerText = "1-1";
+                
+                startTime = new Date();
+                if(timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(updateClock, 1000);
+            }
+            
+            document.querySelectorAll('section').forEach(el => el.classList.add('hidden-step'));
+            document.getElementById('step-' + step).classList.remove('hidden-step');
+            window.scrollTo(0, 0);
+        }
+
+        // Validación y Contadores
+        function checkLength(element, min, counterId) {
+            const len = element.value.trim().length;
+            const counter = document.getElementById(counterId);
+            counter.innerText = len;
+            
+            if(len >= min) {
+                counter.parentElement.classList.remove('text-mario-red');
+                counter.parentElement.classList.add('text-mario-green');
+            } else {
+                counter.parentElement.classList.add('text-mario-red');
+                counter.parentElement.classList.remove('text-mario-green');
+            }
+        }
+
+        // Validación de longitud total para contribuciones
+        function checkTotalLength() {
+            const fam = document.getElementById('pos-family').value.trim().length;
+            const fri = document.getElementById('pos-friends').value.trim().length;
+            const com = document.getElementById('pos-community').value.trim().length;
+            const total = fam + fri + com;
+            
+            document.getElementById('c-fam').innerText = fam;
+            document.getElementById('c-fri').innerText = fri;
+            document.getElementById('c-com').innerText = com;
+            document.getElementById('total-contrib').innerText = total;
+            
+            const totalElement = document.getElementById('total-contribuciones');
+            if(total >= 100) {
+                totalElement.classList.remove('text-mario-red');
+                totalElement.classList.add('text-mario-green');
+            } else {
+                totalElement.classList.add('text-mario-red');
+                totalElement.classList.remove('text-mario-green');
+            }
+            
+            // También actualizar los contadores individuales
+            checkLength(document.getElementById('pos-family'), 0, 'c-fam');
+            checkLength(document.getElementById('pos-friends'), 0, 'c-fri');
+            checkLength(document.getElementById('pos-community'), 0, 'c-com');
+        }
+
+        function validateLengths(fields) {
+            for (let f of fields) {
+                if (document.getElementById(f.id).value.trim().length < f.min) return false;
+            }
+            return true;
+        }
+
+        function validateTotalContributions() {
+            const fam = document.getElementById('pos-family').value.trim().length;
+            const fri = document.getElementById('pos-friends').value.trim().length;
+            const com = document.getElementById('pos-community').value.trim().length;
+            return (fam + fri + com) >= 100;
+        }
+
+        function triggerError(errorId, containerId) {
+            const err = document.getElementById(errorId);
+            const container = document.getElementById(containerId);
+            err.classList.remove('hidden');
+            container.classList.remove('shake');
+            void container.offsetWidth;
+            container.classList.add('shake');
+            setTimeout(() => err.classList.add('hidden'), 3000);
+        }
+
+        // Fase 1: Invitación
+        function updateInvitation() {
+            document.getElementById('prev-inv-intro').innerText = document.getElementById('inv-intro').value || '...';
+            document.getElementById('prev-inv-to').innerText = document.getElementById('inv-to').value || '...';
+            document.getElementById('prev-inv-body').innerText = document.getElementById('inv-body').value || 'Empieza a escribir...';
+        }
+
+        function validateStep1() {
+            const fields = [
+                {id: 'inv-intro', min: 20},
+                {id: 'inv-to', min: 10},
+                {id: 'inv-body', min: 250}
+            ];
+            if(!validateLengths(fields)) {
+                triggerError('error-1', 'step-1');
+                return;
+            }
+            document.body.className = "theme-underground crt";
+            document.getElementById('hud-world').innerText = "1-2";
+            goToStep(2);
+        }
+
+        // Fase 2: Cartel
+        function updatePoster() {
+            document.getElementById('prev-pos-title').innerText = document.getElementById('pos-title').value || 'TÍTULO DEL CARTEL';
+            document.getElementById('prev-pos-family').innerText = document.getElementById('pos-family').value || '...';
+            document.getElementById('prev-pos-friends').innerText = document.getElementById('pos-friends').value || '...';
+            document.getElementById('prev-pos-community').innerText = document.getElementById('pos-community').value || '...';
+            
+            document.getElementById('prev-pos-fisico').innerText = document.getElementById('pos-fisico').value || '...';
+            document.getElementById('prev-pos-mental').innerText = document.getElementById('pos-mental').value || '...';
+            document.getElementById('prev-pos-emocional').innerText = document.getElementById('pos-emocional').value || '...';
+            document.getElementById('prev-pos-social').innerText = document.getElementById('pos-social').value || '...';
+        }
+
+        // Motor Heurístico - Escala de 10 puntos
+        function runHeuristicEngine(fullText, timeInSeconds) {
+            let lexScore = 0; // Max 3
+            let vocScore = 0; // Max 4
+            let estScore = 0; // Max 3
+            let feedback = [];
+
+            const cleanText = fullText.toLowerCase().replace(/[.,;:()]/g, '');
+            const words = cleanText.split(/\s+/).filter(w => w.length > 2);
+            
+            // 1. Riqueza Léxica (Max 3 puntos)
+            if (words.length > 0) {
+                const uniqueWords = new Set(words).size;
+                const richnessRatio = uniqueWords / words.length;
+                
+                if (richnessRatio < 0.4) {
+                    lexScore = 1;
+                    feedback.push("⚠️ Detectamos mucha repetición de palabras. Intenta enriquecer tu vocabulario.");
+                } else if (richnessRatio > 0.7) {
+                    lexScore = 3;
+                    feedback.push("⭐ Excelente variedad de palabras y redacción original.");
+                } else {
+                    lexScore = 2;
+                    feedback.push("✔️ Redacción aceptable. Puedes mejorar usando más sinónimos.");
+                }
+            }
+
+            // 2. Vocabulario Clave (Max 4 puntos)
+            const keywords = [
+                'residuos', 'saludable', 'familia', 'comunidad', 'reciclaje', 
+                'limpieza', 'bienestar', 'físico', 'mental', 'emocional', 
+                'social', 'responsabilidad', 'separar', 'reducir', 'reutilizar',
+                'ambiente', 'basura', 'entorno', 'cuidar', 'planeta'
+            ];
+            let found = 0;
+            
+            keywords.forEach(kw => {
+                if(cleanText.includes(kw)) found++;
+            });
+
+            // Escala: 0-4 puntos
+            if (found >= 10) {
+                vocScore = 4;
+                feedback.push("🎯 Excelente dominio de conceptos clave del proyecto ambiental.");
+            } else if (found >= 7) {
+                vocScore = 3;
+                feedback.push("👍 Buen uso de conceptos relacionados al tema.");
+            } else if (found >= 4) {
+                vocScore = 2;
+                feedback.push("📝 Usaste algunos términos clave, pero puedes profundizar más.");
+            } else {
+                vocScore = 1;
+                feedback.push("⚠️ Te desviaste del tema. Usa más palabras clave solicitadas.");
+            }
+
+            // 3. Estructura y Tiempo (Max 3 puntos)
+            estScore += 1; // Base por cumplir extensión
+            
+            const invText = document.getElementById('inv-body').value;
+            if(/^[A-ZÁÉÍÓÚ]/.test(invText.trim())) { estScore += 0.5; }
+            
+            if(timeInSeconds < 45) {
+                feedback.push("⏱️ Terminaste demasiado rápido. Reflexiona más antes de escribir.");
+            } else if(timeInSeconds > 180) {
+                estScore += 1.5;
+                feedback.push("🕰️ Excelente tiempo de reflexión y estructuración.");
+            } else {
+                estScore += 1;
+                feedback.push("⏱️ Tiempo adecuado para desarrollar tu trabajo.");
+            }
+
+            // Asegurar que estScore no supere 3
+            estScore = Math.min(estScore, 3);
+
+            return { lexScore, vocScore, estScore, feedback };
+        }
+
+        // Validación Step 2 y Generación de Reporte
+        function validateStep2() {
+            const fields = [
+                {id: 'pos-title', min: 15},
+                {id: 'pos-fisico', min: 40},
+                {id: 'pos-mental', min: 40},
+                {id: 'pos-emocional', min: 40},
+                {id: 'pos-social', min: 40}
+            ];
+            
+            // Verificar campos individuales
+            if(!validateLengths(fields)) {
+                triggerError('error-2', 'step-2');
+                return;
+            }
+            
+            // Verificar total de contribuciones
+            if(!validateTotalContributions()) {
+                triggerError('error-2', 'step-2');
+                return;
+            }
+
+            clearInterval(timerInterval);
+            const timeInSeconds = Math.floor((new Date() - startTime) / 1000);
+
+            const allText = `
+                ${document.getElementById('inv-body').value} 
+                ${document.getElementById('pos-family').value}
+                ${document.getElementById('pos-friends').value}
+                ${document.getElementById('pos-community').value}
+                ${document.getElementById('pos-fisico').value}
+                ${document.getElementById('pos-mental').value}
+                ${document.getElementById('pos-emocional').value}
+                ${document.getElementById('pos-social').value}
+            `;
+
+            document.body.className = "theme-castle crt";
+            document.getElementById('hud').classList.add('hidden-step'); 
+            goToStep(3);
+
+            setTimeout(() => document.getElementById('calc-length').innerHTML = '[*] EXTENSIÓN Y TIEMPO..... <span class="text-mario-green">OK</span>', 1000);
+            setTimeout(() => document.getElementById('calc-vocab').innerHTML = '[*] VOCABULARIO CLAVE...... <span class="text-mario-green">LISTO</span>', 2000);
+            setTimeout(() => document.getElementById('calc-spam').innerHTML = '[*] ANÁLISIS ANTI-SPAM..... <span class="text-mario-green">LIMPIO</span>', 3000);
+            
+            setTimeout(() => document.getElementById('progress-bar').style.width = '100%', 100);
+
+            setTimeout(() => {
+                const results = runHeuristicEngine(allText, timeInSeconds);
+                generateFinalReport(results, timeInSeconds);
+            }, 4500);
+        }
+
+        function generateFinalReport(res, timeSecs) {
+            const name = document.getElementById('in-name').value;
+            const group = document.getElementById('in-group').value;
+
+            document.getElementById('final-name').innerText = name;
+            document.getElementById('final-group').innerText = group;
+            
+            const m = String(Math.floor(timeSecs / 60)).padStart(2, '0');
+            const s = String(timeSecs % 60).padStart(2, '0');
+            document.getElementById('final-time').innerText = `${m} MIN ${s} SEG`;
+
+            // Datos Invitación
+            document.getElementById('final-inv-to').innerText = document.getElementById('inv-to').value;
+            document.getElementById('final-inv-intro').innerText = document.getElementById('inv-intro').value;
+            document.getElementById('final-inv-body').innerText = document.getElementById('inv-body').value;
+            document.getElementById('final-inv-author').innerText = name;
+
+            // Datos Cartel
+            document.getElementById('final-pos-title').innerText = document.getElementById('pos-title').value;
+            document.getElementById('final-pos-family').innerText = document.getElementById('pos-family').value;
+            document.getElementById('final-pos-friends').innerText = document.getElementById('pos-friends').value;
+            document.getElementById('final-pos-community').innerText = document.getElementById('pos-community').value;
+            
+            document.getElementById('final-pos-fisico').innerText = document.getElementById('pos-fisico').value;
+            document.getElementById('final-pos-mental').innerText = document.getElementById('pos-mental').value;
+            document.getElementById('final-pos-emocional').innerText = document.getElementById('pos-emocional').value;
+            document.getElementById('final-pos-social').innerText = document.getElementById('pos-social').value;
+            
+            // Puntajes - Escala 10 puntos
+            const lexScore = Math.round(res.lexScore);
+            const vocScore = Math.round(res.vocScore);
+            const estScore = Math.round(res.estScore);
+            const total = lexScore + vocScore + estScore;
+            
+            // Mostrar puntajes individuales
+            document.getElementById('score-lex').innerText = `${lexScore}/3`;
+            setTimeout(() => document.getElementById('bar-lex').style.width = `${(lexScore/3)*100}%`, 500);
+            
+            document.getElementById('score-voc').innerText = `${vocScore}/4`;
+            setTimeout(() => document.getElementById('bar-voc').style.width = `${(vocScore/4)*100}%`, 500);
+
+            document.getElementById('score-est').innerText = `${estScore}/3`;
+            setTimeout(() => document.getElementById('bar-est').style.width = `${(estScore/3)*100}%`, 500);
+
+            // Mostrar calificación final en grande
+            const gradeElement = document.getElementById('final-grade');
+            gradeElement.innerText = `${total}/10`;
+            
+            // Color según calificación
+            if(total >= 9) {
+                gradeElement.className = 'big-grade text-mario-green';
+            } else if(total >= 7) {
+                gradeElement.className = 'big-grade text-mario-yellow';
+            } else if(total >= 5) {
+                gradeElement.className = 'big-grade text-mario-blue';
+            } else {
+                gradeElement.className = 'big-grade text-mario-red';
+            }
+
+            const ul = document.getElementById('feedback-list');
+            ul.innerHTML = "";
+            res.feedback.forEach(text => {
+                const li = document.createElement('li');
+                li.innerText = text;
+                ul.appendChild(li);
+            });
+
+            document.body.className = "theme-success crt";
+            goToStep(4);
+        }
+    </script>
+</body>
+</html>

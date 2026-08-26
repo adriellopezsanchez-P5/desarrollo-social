@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio: Mi Rueda del Bienestar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mario: {
+                            red: '#E52521', blue: '#049CD8', green: '#43B047',
+                            yellow: '#FBD000', sky: '#5C94FC', water: '#004058',
+                            underground: '#000000', fire: '#C84C0C', castle: '#404040'
+                        }
+                    },
+                    fontFamily: {
+                        retro: ['"Press Start 2P"', 'cursive'],
+                        read: ['"Nunito"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* FONDOS DINÁMICOS PREMIUM */
+        body { transition: background 0.8s ease, background-color 0.8s ease; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        
+        .theme-overworld { background-color: #5C94FC; background-image: radial-gradient(white 15%, transparent 16%), radial-gradient(white 15%, transparent 16%); background-size: 60px 60px; background-position: 0 0, 30px 30px; }
+        .theme-water { background-color: #004058; background-image: radial-gradient(rgba(255,255,255,0.15) 10%, transparent 11%); background-size: 40px 40px; }
+        .theme-underground { background-color: #000000; background-image: linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222), linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222); background-size: 60px 60px; background-position: 0 0, 30px 30px; }
+        .theme-castle { background-color: #2b2b2b; background-image: linear-gradient(335deg, rgba(0,0,0,0.6) 15%, transparent 15%), linear-gradient(155deg, rgba(0,0,0,0.6) 15%, transparent 15%); background-size: 40px 40px; }
+
+        /* EFECTO CRT (TV ANTIGUA) */
+        .crt::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px; z-index: 100; pointer-events: none;
+        }
+
+        /* COMPONENTES UI ESTILO 8-BITS */
+        .dialog-box {
+            background: rgba(0, 0, 0, 0.85); border: 4px solid white;
+            box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.5); color: white;
+            position: relative;
+        }
+        
+        .paper-box {
+            background: white; border: 4px solid black;
+            box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.6); color: black;
+        }
+
+        .mario-btn {
+            border: 4px solid black; box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3), 4px 4px 0px 0px black;
+            transition: all 0.1s; cursor: pointer; text-transform: uppercase;
+        }
+        .mario-btn:active { transform: translate(4px, 4px); box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3), 0px 0px 0px 0px black; }
+        .mario-btn.selected { background-color: #FBD000; color: black; box-shadow: inset 4px 4px 0px 0px rgba(0,0,0,0.2), 0px 0px 0px 0px black; transform: translate(2px, 2px); }
+
+        .textarea-retro { 
+            border: none; background: transparent; font-family: 'Nunito', sans-serif; 
+            font-size: 16px; font-weight: 700; color: #333; line-height: 1.6; resize: none; width: 100%;
+        }
+        .textarea-retro:focus { outline: none; }
+
+        .likert-btn {
+            border: 3px solid black; background: #e5e7eb; color: #374151;
+            font-family: 'Press Start 2P', cursive; font-size: 12px;
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 2px 2px 0px black; transition: all 0.1s;
+        }
+        .likert-btn.active {
+            background: #FBD000; color: black; transform: translate(2px, 2px); box-shadow: 0px 0px 0px black;
+        }
+
+        /* ANIMACIONES */
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+
+        .fade-in { animation: fadeIn 0.4s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .hidden-step { display: none !important; }
+        
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        /* SCROLLBAR RETRO */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #000; border-left: 2px solid #fff; }
+        ::-webkit-scrollbar-thumb { background: #E52521; border: 2px solid #fff; }
+
+        .pixel-text-shadow { text-shadow: 2px 2px 0px black; }
+        
+        /* RUEDA FINAL ESTILO PIXEL */
+        .pixel-quadrant {
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; box-shadow: inset -4px -4px 0px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body class="theme-overworld crt">
+
+    <!-- HUD (Heads Up Display) -->
+    <div id="hud" class="fixed top-4 left-4 right-4 flex justify-between z-50 pointer-events-none px-2 md:px-8 hidden-step">
+        <div class="bg-transparent text-white font-retro text-xs md:text-sm drop-shadow-[2px_2px_0_rgba(0,0,0,1)] flex flex-col">
+            <span class="text-mario-yellow">JUGADOR</span>
+            <span id="hud-name" class="mt-1 uppercase">---</span>
+        </div>
+        <div class="bg-transparent text-white font-retro text-xs md:text-sm drop-shadow-[2px_2px_0_rgba(0,0,0,1)] flex flex-col items-end">
+            <span class="text-mario-green">SCORE</span>
+            <span class="mt-1 flex items-center gap-2 text-xl">⭐ <span id="hud-score" class="text-white">0</span>/10</span>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="min-h-screen flex items-center justify-center p-4 pt-24 pb-20">
+        <div class="w-full max-w-4xl relative z-10">
+            
+            <!-- ================= PANTALLA 0: INICIO ================= -->
+            <div id="step-0" class="fade-in block">
+                <div class="text-center mb-8 float-anim">
+                    <div class="inline-block bg-black p-4 border-4 border-white shadow-[6px_6px_0_rgba(0,0,0,0.5)] mb-6">
+                        <span class="text-5xl">🧘‍♂️</span>
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-retro text-mario-yellow mt-4 leading-tight" style="text-shadow: 4px 4px 0px black;">
+                        LA RUEDA DEL<br>BIENESTAR
+                    </h1>
+                    <div class="bg-mario-red text-white font-retro text-[9px] md:text-xs inline-block p-4 mt-6 border-4 border-black shadow-[4px_4px_0_black] leading-relaxed text-left">
+                        ⚠️ INSTRUCCIONES JUGADOR:<br><br>
+                        - Evalúa tus hábitos con honestidad.<br>
+                        - Solo se valida tu <b>PRIMER INTENTO</b> en los retos (se registrará tu primera elección).<br>
+                        - Al finalizar, <b>TOMA CAPTURA DE PANTALLA</b> de tu certificado.
+                    </div>
+                </div>
+
+                <div class="paper-box p-6 md:p-8 rounded-lg max-w-md mx-auto mt-6">
+                    <label class="font-retro text-[10px] text-mario-blue block mb-2">IDENTIFICACIÓN:</label>
+                    <input type="text" id="player-name" class="w-full border-b-4 border-black p-3 font-read text-xl uppercase bg-gray-50 focus:bg-mario-yellow focus:outline-none transition-colors" placeholder="APELLIDOS Y NOMBRES...">
+                    
+                    <button id="btn-start" onclick="startGame()" disabled class="w-full bg-mario-green text-white font-retro py-4 mt-8 mario-btn text-sm opacity-50 cursor-not-allowed">
+                        PRESS START ➔
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= PANTALLAS 1-4 (Contenedor Dinámico) ================= -->
+            <div id="step-active" class="hidden-step">
+                
+                <div class="text-center drop-shadow-[2px_2px_0_rgba(0,0,0,1)] mb-6">
+                    <h2 class="text-white font-retro text-xl tracking-widest" id="world-title">MUNDO 1-1</h2>
+                    <p class="text-mario-yellow font-retro text-xs mt-2 uppercase" id="area-title">FÍSICO</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Columna Izquierda: Likert -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="dialog-box p-4 rounded">
+                            <h3 class="font-retro text-[10px] text-mario-yellow mb-4 border-b-2 border-white/30 pb-2">DIAGNÓSTICO (0 al 5)</h3>
+                            <div id="likert-container" class="space-y-4">
+                                <!-- Botones inyectados por JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Quiz y Reflexión -->
+                    <div class="lg:col-span-7 space-y-6">
+                        
+                        <!-- Reto de Conocimiento -->
+                        <div class="dialog-box p-5 rounded border-mario-blue" style="border-color: #049CD8;">
+                            <h3 class="font-retro text-[10px] text-mario-sky mb-3 flex items-center gap-2">
+                                <span>🧠</span> RETO DE CONOCIMIENTO
+                            </h3>
+                            <p id="quiz-question" class="font-read text-sm font-bold text-white mb-2"></p>
+                            <p class="font-retro text-[8px] text-mario-yellow mb-4" id="quiz-instruction"></p>
+                            
+                            <div id="quiz-options" class="grid grid-cols-1 gap-2">
+                                <!-- Opciones inyectadas por JS -->
+                            </div>
+                        </div>
+
+                        <!-- Reflexión -->
+                        <div class="paper-box p-5 rounded">
+                            <p class="font-retro text-[10px] text-mario-red mb-2">ARGUMENTACIÓN (MÍN. 50 LETRAS):</p>
+                            <p class="font-read text-sm text-gray-600 mb-4 font-bold">Menciona al menos 3 hábitos específicos que te hacen estar ahí y justifica tu respuesta.</p>
+                            <div class="bg-yellow-50 p-4 border-2 border-dashed border-gray-400">
+                                <textarea id="reflection-text" rows="3" class="textarea-retro" placeholder="Escribe aquí..."></textarea>
+                            </div>
+                            <div class="flex justify-between items-center mt-3">
+                                <span id="feedback-active" class="font-retro text-[8px] text-mario-red hidden leading-relaxed"></span>
+                                <span class="font-retro text-[9px] text-gray-400">LETRAS: <span id="char-counter">000</span>/50</span>
+                            </div>
+                        </div>
+
+                        <button id="btn-next" onclick="validateAndNext()" class="bg-mario-red text-white font-retro py-4 w-full mario-btn text-sm">
+                            VALIDAR Y AVANZAR ➔
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ================= PANTALLA FINAL: DASHBOARD ================= -->
+            <div id="step-final" class="hidden-step fade-in">
+                
+                <div class="paper-box p-6 md:p-10 rounded-xl relative overflow-hidden bg-gray-100">
+                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(black 15%, transparent 16%); background-size: 20px 20px;"></div>
+                    
+                    <div class="relative z-10">
+                        <!-- Banner Superior -->
+                        <div class="text-center mb-8">
+                            <h2 class="text-2xl md:text-3xl font-retro text-mario-red mb-4 pixel-text-shadow text-white">REPORTE FINAL</h2>
+                            <div class="inline-block bg-black text-mario-yellow border-4 border-white font-retro text-sm p-4 animate-bounce">
+                                ⭐ CALIFICACIÓN: <span id="final-score">0</span>/10 ⭐
+                            </div>
+                        </div>
+
+                        <div class="bg-white border-4 border-black p-4 mb-8 font-retro text-[10px] leading-loose flex justify-between items-center shadow-[4px_4px_0_rgba(0,0,0,0.5)]">
+                            <div>
+                                <p class="text-mario-blue mb-1">JUGADOR:</p>
+                                <p id="final-name" class="text-sm md:text-base uppercase text-black font-bold"></p>
+                            </div>
+                        </div>
+
+                        <!-- Retroalimentación Final -->
+                        <div class="bg-white border-4 border-black p-5 mb-8 shadow-[4px_4px_0_rgba(0,0,0,0.5)] text-center">
+                            <h3 class="font-retro text-[12px] text-mario-blue mb-3">RETROALIMENTACIÓN</h3>
+                            <p id="final-feedback-text" class="font-read text-base font-bold text-gray-800"></p>
+                        </div>
+
+                        <!-- Cuerpo del Reporte -->
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                            
+                            <!-- Columna Izquierda: Rueda Gráfica -->
+                            <div class="md:col-span-4 flex flex-col items-center justify-center">
+                                <h3 class="font-retro text-[10px] text-black mb-4">RUEDA INTERNA</h3>
+                                <div class="relative w-48 h-48 md:w-56 md:h-56">
+                                    <!-- Rueda Circular -->
+                                    <div id="wheel-container" class="w-full h-full grid grid-cols-2 grid-rows-2 gap-1 bg-black border-4 border-black rounded-full overflow-hidden shadow-[6px_6px_0_rgba(0,0,0,0.5)]">
+                                        <!-- Cuadrantes inyectados por JS -->
+                                    </div>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white border-4 border-black rounded-full flex items-center justify-center z-10">
+                                        <span class="text-xl">🌱</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-8 flex flex-col gap-2 text-[8px] font-retro uppercase text-black">
+                                    <div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-black bg-[#10b981]"></div> MUY BIEN (Mushroom)</div>
+                                    <div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-black bg-[#FBD000]"></div> REGULAR (Coin)</div>
+                                    <div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-black bg-[#E52521]"></div> A MEJORAR (Goomba)</div>
+                                </div>
+                            </div>
+
+                            <!-- Columna Derecha: Tarjetas de Reflexión -->
+                            <div class="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Tarjeta Físico -->
+                                <div class="bg-white border-4 border-black p-4 shadow-[4px_4px_0_rgba(0,0,0,0.3)] relative">
+                                    <div id="status-bar-0" class="absolute top-0 left-0 w-2 h-full border-r-4 border-black"></div>
+                                    <div class="ml-2">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <h4 class="font-retro text-[10px] text-black">🏃‍♂️ FÍSICO</h4>
+                                            <span id="likert-score-0" class="font-retro text-[8px] px-2 py-1 text-white border-2 border-black"></span>
+                                        </div>
+                                        <p id="ref-0" class="font-read text-sm text-gray-700 italic"></p>
+                                    </div>
+                                </div>
+                                <!-- Tarjeta Mental -->
+                                <div class="bg-white border-4 border-black p-4 shadow-[4px_4px_0_rgba(0,0,0,0.3)] relative">
+                                    <div id="status-bar-1" class="absolute top-0 left-0 w-2 h-full border-r-4 border-black"></div>
+                                    <div class="ml-2">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <h4 class="font-retro text-[10px] text-black">🧠 MENTAL</h4>
+                                            <span id="likert-score-1" class="font-retro text-[8px] px-2 py-1 text-white border-2 border-black"></span>
+                                        </div>
+                                        <p id="ref-1" class="font-read text-sm text-gray-700 italic"></p>
+                                    </div>
+                                </div>
+                                <!-- Tarjeta Emocional -->
+                                <div class="bg-white border-4 border-black p-4 shadow-[4px_4px_0_rgba(0,0,0,0.3)] relative">
+                                    <div id="status-bar-2" class="absolute top-0 left-0 w-2 h-full border-r-4 border-black"></div>
+                                    <div class="ml-2">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <h4 class="font-retro text-[10px] text-black">❤️ EMOCIONAL</h4>
+                                            <span id="likert-score-2" class="font-retro text-[8px] px-2 py-1 text-white border-2 border-black"></span>
+                                        </div>
+                                        <p id="ref-2" class="font-read text-sm text-gray-700 italic"></p>
+                                    </div>
+                                </div>
+                                <!-- Tarjeta Social -->
+                                <div class="bg-white border-4 border-black p-4 shadow-[4px_4px_0_rgba(0,0,0,0.3)] relative">
+                                    <div id="status-bar-3" class="absolute top-0 left-0 w-2 h-full border-r-4 border-black"></div>
+                                    <div class="ml-2">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <h4 class="font-retro text-[10px] text-black">🤝 SOCIAL</h4>
+                                            <span id="likert-score-3" class="font-retro text-[8px] px-2 py-1 text-white border-2 border-black"></span>
+                                        </div>
+                                        <p id="ref-3" class="font-read text-sm text-gray-700 italic"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer / Captura -->
+                        <div class="mt-8 text-center">
+                            <p class="font-retro text-[8px] text-gray-500 mb-4" id="date-stamp"></p>
+                            <div class="bg-mario-red text-white font-retro text-[10px] md:text-xs p-4 border-4 border-black inline-block animate-pulse shadow-[6px_6px_0_black]">
+                                📸 TOMA CAPTURA DE PANTALLA COMPLETA 📸
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- BASE DE DATOS DEL LABORATORIO (CONTENIDO INTACTO) ---
+        const phases = [
+            {
+                id: 'fisico', title: 'Físico', icon: '🏃‍♂️', theme: 'theme-overworld',
+                points: 2,
+                likert: [
+                    "¿Cómo valoras en este momento tu calidad de descanso?",
+                    "¿Con qué frecuencia realizas actividad física a la semana?",
+                    "¿Qué tan balanceada consideras que es tu alimentación diaria?",
+                    "¿Qué tan bien te mantienes hidratado/a durante el día?",
+                    "¿Cómo evalúas tu nivel de energía física a lo largo del día?"
+                ],
+                quiz: {
+                    q: "Identifica las acciones que ayudan a mejorar directamente tu aspecto físico.",
+                    required: 4,
+                    options: [
+                        { text: "Dormir entre 7 y 8 horas diarias sin interrupciones.", isCorrect: true },
+                        { text: "Pasar 5 horas seguidas jugando videojuegos en la madrugada.", isCorrect: false },
+                        { text: "Mantener una dieta rica en nutrientes y buena hidratación.", isCorrect: true },
+                        { text: "Realizar al menos 30 minutos de actividad física diaria.", isCorrect: true },
+                        { text: "Consumir bebidas energéticas en lugar de descansar.", isCorrect: false },
+                        { text: "Acudir a revisiones médicas preventivas periódicamente.", isCorrect: true }
+                    ]
+                }
+            },
+            {
+                id: 'mental', title: 'Mental', icon: '🧠', theme: 'theme-water',
+                points: 3,
+                likert: [
+                    "¿Qué tan fácil te resulta concentrarte en tus tareas escolares?",
+                    "¿Cómo valoras tu capacidad para manejar el estrés académico?",
+                    "¿Qué tan frecuentes son tus pensamientos positivos frente a los problemas?",
+                    "¿Con qué frecuencia dedicas tiempo a aprender cosas nuevas por gusto?",
+                    "¿Qué tan bien organizas tu tiempo para evitar saturarte?"
+                ],
+                quiz: {
+                    q: "Selecciona los hábitos constructivos para mantener un sano bienestar mental.",
+                    required: 3,
+                    options: [
+                        { text: "Practicar ejercicios de respiración o mindfulness para reducir el estrés.", isCorrect: true },
+                        { text: "Procrastinar hasta el último minuto para 'trabajar bajo presión'.", isCorrect: false },
+                        { text: "Establecer horarios de estudio con pausas activas.", isCorrect: true },
+                        { text: "Leer libros, armar rompecabezas o aprender habilidades nuevas.", isCorrect: true },
+                        { text: "Reprimir los pensamientos de frustración hasta olvidarlos por completo.", isCorrect: false }
+                    ]
+                }
+            },
+            {
+                id: 'emocional', title: 'Emocional', icon: '❤️', theme: 'theme-underground',
+                points: 2,
+                likert: [
+                    "¿Qué tan fácil te resulta identificar cómo te sientes en el día?",
+                    "¿Cómo valoras tu capacidad para expresar tus emociones sin lastimar a otros?",
+                    "¿Qué tan fuerte consideras que es tu autoestima actualmente?",
+                    "¿Con qué frecuencia te sientes motivado/a para alcanzar tus metas?",
+                    "¿Qué tan rápido logras calmarte cuando algo te hace enojar o entristecer?"
+                ],
+                quiz: {
+                    q: "Elige las acciones que reflejan una sólida inteligencia emocional.",
+                    required: 2,
+                    options: [
+                        { text: "Reconocer mis emociones (enojo, tristeza) y expresarlas asertivamente.", isCorrect: true },
+                        { text: "Ocultar cómo me siento para que nadie piense que soy débil o exagerado.", isCorrect: false },
+                        { text: "Buscar ayuda profesional o hablar con alguien de confianza si me siento abrumado.", isCorrect: true },
+                        { text: "Desquitar mi estrés con las personas cercanas porque 'ellos me entienden'.", isCorrect: false }
+                    ]
+                }
+            },
+            {
+                id: 'social', title: 'Social', icon: '🤝', theme: 'theme-castle',
+                points: 3,
+                likert: [
+                    "¿Cómo valoras la calidad de tu comunicación con tu familia?",
+                    "¿Qué tan sólidas y sanas consideras que son tus amistades actuales?",
+                    "¿Con qué frecuencia compartes tiempo de calidad con otras personas?",
+                    "¿Qué tan fácil te resulta establecer límites sanos con los demás?",
+                    "¿Cómo evalúas tu nivel de empatía al escuchar a tus amigos?"
+                ],
+                quiz: {
+                    q: "Identifica las prácticas que nutren y fortalecen tus relaciones interpersonales.",
+                    required: 3,
+                    options: [
+                        { text: "Escuchar activamente a los demás sin interrumpir.", isCorrect: true },
+                        { text: "Mantener relaciones solo con quienes siempre me dan la razón.", isCorrect: false },
+                        { text: "Construir amistades basadas en el respeto y la reciprocidad.", isCorrect: true },
+                        { text: "Establecer y comunicar mis límites personales con claridad.", isCorrect: true },
+                        { text: "Alejarme y dejar de hablar sin dar explicaciones cuando algo me molesta.", isCorrect: false }
+                    ]
+                }
+            }
+        ];
+
+        const MIN_CHARS = 50;
+        const colorMap = {
+            'green': { bg: 'bg-[#10b981]', hex: '#10b981' }, // 1-UP
+            'yellow': { bg: 'bg-[#FBD000]', hex: '#FBD000' }, // Coin
+            'red': { bg: 'bg-[#E52521]', hex: '#E52521' }     // Damage
+        };
+
+        // --- ESTADO ---
+        let state = {
+            playerName: '',
+            score: 0,
+            currentPhase: 0,
+            likertAnswers: [null, null, null, null, null],
+            quizSelections: [],
+            reflectionText: '',
+            results: []
+        };
+
+        // --- ELEMENTOS DEL DOM ---
+        const inputName = document.getElementById('player-name');
+        const btnStart = document.getElementById('btn-start');
+        const hud = document.getElementById('hud');
+        
+        const step0 = document.getElementById('step-0');
+        const stepActive = document.getElementById('step-active');
+        const stepFinal = document.getElementById('step-final');
+        
+        const textRef = document.getElementById('reflection-text');
+        const charCounter = document.getElementById('char-counter');
+        const feedbackActive = document.getElementById('feedback-active');
+
+        // --- LÓGICA DE INICIO ---
+        inputName.addEventListener('input', (e) => {
+            if (e.target.value.trim().length > 3) {
+                btnStart.disabled = false;
+                btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnStart.disabled = true;
+                btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        });
+
+        function startGame() {
+            state.playerName = inputName.value.trim();
+            document.getElementById('hud-name').textContent = state.playerName.split(' ')[0].substring(0,8);
+            
+            step0.classList.add('hidden-step');
+            hud.classList.remove('hidden-step');
+            stepActive.classList.remove('hidden-step');
+            
+            loadPhase(0);
+        }
+
+        // --- LÓGICA DE FASES ---
+        function loadPhase(index) {
+            // Reset state
+            state.likertAnswers = [null, null, null, null, null];
+            state.quizSelections = [];
+            state.reflectionText = '';
+            
+            // Reset UI
+            textRef.value = '';
+            updateCounter();
+            feedbackActive.classList.add('hidden');
+            stepActive.classList.remove('shake');
+
+            const phase = phases[index];
+            
+            // Cambiar Tema
+            document.body.className = `crt ${phase.theme}`;
+            
+            // Textos HUD
+            document.getElementById('world-title').textContent = `MUNDO 1-${index + 1}`;
+            document.getElementById('area-title').textContent = `${phase.icon} ${phase.title}`;
+
+            // Render Likert
+            const likertContainer = document.getElementById('likert-container');
+            likertContainer.innerHTML = '';
+            phase.likert.forEach((q, i) => {
+                let html = `
+                    <div class="mb-4">
+                        <p class="font-read text-sm text-gray-300 font-bold mb-2 leading-tight">${i+1}. ${q}</p>
+                        <div class="flex justify-between max-w-sm">
+                            ${[0,1,2,3,4,5].map(val => `
+                                <button onclick="selectLikert(${i}, ${val}, this)" class="likert-btn likert-btn-${i}">
+                                    ${val}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                likertContainer.innerHTML += html;
+            });
+
+            // Render Quiz
+            document.getElementById('quiz-question').textContent = phase.quiz.q;
+            document.getElementById('quiz-instruction').textContent = `SELECCIONA EXACTAMENTE ${phase.quiz.required} CORRECTAS.`;
+            
+            const quizContainer = document.getElementById('quiz-options');
+            quizContainer.innerHTML = '';
+            const options = [...phase.quiz.options].sort(() => Math.random() - 0.5);
+            
+            options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = `mario-btn bg-white text-black font-read text-sm font-bold p-3 text-left w-full`;
+                btn.innerHTML = `<span class="checkbox-mark text-transparent mr-2">▶</span> ${opt.text}`;
+                btn.onclick = () => toggleQuizOption(i, btn, opt.isCorrect);
+                quizContainer.appendChild(btn);
+            });
+
+            // Forzar reflow animación
+            stepActive.classList.remove('fade-in');
+            void stepActive.offsetWidth;
+            stepActive.classList.add('fade-in');
+        }
+
+        function selectLikert(qIndex, value, btnEl) {
+            state.likertAnswers[qIndex] = value;
+            document.querySelectorAll(`.likert-btn-${qIndex}`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            btnEl.classList.add('active');
+        }
+
+        function toggleQuizOption(optIndex, btnEl, isCorrect) {
+            const existingIdx = state.quizSelections.findIndex(s => s.optIndex === optIndex);
+            const mark = btnEl.querySelector('.checkbox-mark');
+            
+            if (existingIdx >= 0) {
+                state.quizSelections.splice(existingIdx, 1);
+                btnEl.classList.remove('selected');
+                mark.classList.add('text-transparent');
+                mark.classList.remove('text-black');
+            } else {
+                state.quizSelections.push({ optIndex, isCorrect });
+                btnEl.classList.add('selected');
+                mark.classList.remove('text-transparent');
+                mark.classList.add('text-black');
+            }
+        }
+
+        textRef.addEventListener('input', (e) => {
+            state.reflectionText = e.target.value.trim();
+            updateCounter();
+        });
+
+        function updateCounter() {
+            const len = state.reflectionText.length;
+            charCounter.textContent = len.toString().padStart(3, '0');
+            if (len >= MIN_CHARS) {
+                charCounter.parentElement.classList.remove('text-gray-400');
+                charCounter.parentElement.classList.add('text-mario-green');
+            } else {
+                charCounter.parentElement.classList.add('text-gray-400');
+                charCounter.parentElement.classList.remove('text-mario-green');
+            }
+        }
+
+        function showError(msg) {
+            feedbackActive.innerHTML = `⚠️ ${msg}`;
+            feedbackActive.classList.remove('hidden');
+            stepActive.classList.remove('shake');
+            void stepActive.offsetWidth;
+            stepActive.classList.add('shake');
+        }
+
+        function validateAndNext() {
+            const phase = phases[state.currentPhase];
+            
+            // Validar Likert
+            if(state.likertAnswers.includes(null)) {
+                showError("¡FALTA RESPONDER EL DIAGNÓSTICO LIKERT!");
+                return;
+            }
+
+            // Validar Reflexión
+            if(state.reflectionText.length < MIN_CHARS) {
+                showError(`¡REFLEXIÓN MUY CORTA! FALTAN ${MIN_CHARS - state.reflectionText.length} LETRAS.`);
+                return;
+            }
+
+            // EXITO - Sin pistas ni bloqueos en el quiz (se toma el primer intento)
+            feedbackActive.classList.add('hidden');
+            
+            // Lógica de Puntos del Quiz
+            const req = phase.quiz.required;
+            const allCorrect = state.quizSelections.length === req && state.quizSelections.every(s => s.isCorrect === true);
+            
+            if(allCorrect) {
+                state.score += phase.points;
+                const scoreEl = document.getElementById('hud-score');
+                scoreEl.textContent = state.score;
+                scoreEl.parentElement.classList.add('text-mario-yellow', 'scale-125');
+                setTimeout(() => scoreEl.parentElement.classList.remove('text-mario-yellow', 'scale-125'), 500);
+            }
+
+            // Calcular Color Rueda
+            const likertSum = state.likertAnswers.reduce((a,b) => a+b, 0);
+            let color = 'red';
+            if (likertSum >= 20) color = 'green';
+            else if (likertSum >= 15) color = 'yellow';
+
+            state.results.push({
+                phaseId: phase.id,
+                color: color,
+                text: state.reflectionText,
+                likertScore: likertSum
+            });
+
+            state.currentPhase++;
+            
+            if (state.currentPhase < phases.length) {
+                loadPhase(state.currentPhase);
+            } else {
+                generateDashboard();
+            }
+        }
+
+        // --- DASHBOARD FINAL ---
+        function generateDashboard() {
+            stepActive.classList.add('hidden-step');
+            hud.classList.add('hidden-step');
+            document.body.className = `crt bg-gray-200`; // Fondo neutral final
+            stepFinal.classList.remove('hidden-step');
+
+            document.getElementById('final-name').textContent = state.playerName;
+            document.getElementById('final-score').textContent = state.score;
+            
+            const date = new Date();
+            document.getElementById('date-stamp').textContent = `NIVEL COMPLETADO: ${date.toLocaleDateString()} - ${date.toLocaleTimeString()}`;
+
+            // Determinar texto de retroalimentación
+            let feedbackText = "";
+            if (state.score === 10) {
+                feedbackText = "🌟 Excelente trabajo. Has demostrado un gran conocimiento y honestidad en tus hábitos.";
+            } else if (state.score >= 8) {
+                feedbackText = "👍 Muy bien. Vas por buen camino, mantén y mejora tus rutinas.";
+            } else if (state.score === 7) {
+                feedbackText = "📝 Buen intento. Tienes áreas de oportunidad claras que debes empezar a trabajar.";
+            } else if (state.score === 6) {
+                feedbackText = "⚠️ Requiere repaso. Necesitas prestar más atención a tu bienestar general urgentemente.";
+            } else {
+                feedbackText = "❌ Deficiente. Tus resultados indican que necesitas buscar apoyo y hacer cambios ya.";
+            }
+            document.getElementById('final-feedback-text').textContent = feedbackText;
+
+            const wheelContainer = document.getElementById('wheel-container');
+            const rotations = ['', '', '', '']; // Sin rotación para texto claro
+            
+            state.results.forEach((res, index) => {
+                const phaseData = phases[index];
+                const colorClass = colorMap[res.color].bg;
+                
+                // Cuadrante
+                const slice = document.createElement('div');
+                slice.className = `pixel-quadrant ${colorClass}`;
+                slice.innerHTML = `<span class="drop-shadow-md text-white text-3xl">${phaseData.icon}</span>`;
+                wheelContainer.appendChild(slice);
+
+                // Tarjeta texto
+                document.getElementById(`ref-${index}`).textContent = `"${res.text}"`;
+                document.getElementById(`status-bar-${index}`).className = `absolute top-0 left-0 w-2 h-full border-r-4 border-black ${colorClass}`;
+
+                // Etiqueta
+                const scoreEl = document.getElementById(`likert-score-${index}`);
+                let label = '';
+                if(res.color === 'green') label = 'MUY BIEN';
+                else if(res.color === 'yellow') label = 'REGULAR';
+                else label = 'A MEJORAR';
+                
+                scoreEl.textContent = `${res.likertScore} PT: ${label}`;
+                scoreEl.className = `font-retro text-[8px] px-2 py-1 text-white border-2 border-black ${colorClass}`;
+            });
+        }
+    </script>
+</body>
+</html>
