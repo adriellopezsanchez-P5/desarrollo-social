@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión 4 · Mapa Mental PAEC | Desarrollo Social</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mario: {
+                            red: '#E52521', blue: '#049CD8', green: '#43B047',
+                            yellow: '#FBD000', sky: '#5C94FC', water: '#004058',
+                            underground: '#000000', fire: '#C84C0C', castle: '#404040',
+                            purple: '#8B3FB8', orange: '#F79022'
+                        }
+                    },
+                    fontFamily: {
+                        retro: ['"Press Start 2P"', 'cursive'],
+                        read: ['"Nunito"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { transition: background 0.8s ease, background-color 0.8s ease; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        .theme-overworld { background-color: #5C94FC; background-image: radial-gradient(white 15%, transparent 16%), radial-gradient(white 15%, transparent 16%); background-size: 60px 60px; background-position: 0 0, 30px 30px; }
+        .theme-underground { background-color: #000000; background-image: linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222), linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222); background-size: 60px 60px; background-position: 0 0, 30px 30px; }
+        .theme-purple { background-color: #3a2150; background-image: radial-gradient(rgba(255,255,255,0.15) 12%, transparent 13%); background-size: 50px 50px; }
+        .theme-castle { background-color: #2b2b2b; background-image: linear-gradient(335deg, rgba(0,0,0,0.6) 15%, transparent 15%), linear-gradient(155deg, rgba(0,0,0,0.6) 15%, transparent 15%); background-size: 40px 40px; }
+        .theme-success { background-color: #43B047; background-image: radial-gradient(rgba(255,255,255,0.2) 15%, transparent 16%); background-size: 40px 40px; }
+
+        .crt::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); background-size: 100% 4px; z-index: 100; pointer-events: none; }
+
+        .dialog-box { background: rgba(0, 0, 0, 0.85); border: 4px solid white; box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.5); color: white; position: relative; }
+        .paper-box { background: white; border: 4px solid black; box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.6); color: black; }
+
+        .mario-btn { border: 4px solid black; box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3), 4px 4px 0px 0px black; transition: all 0.1s; cursor: pointer; text-transform: uppercase; }
+        .mario-btn:active { transform: translate(4px, 4px); box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3), 0px 0px 0px 0px black; }
+        .mario-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3), 4px 4px 0px 0px black; }
+
+        .textarea-retro { border: none; background: transparent; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; color: #333; line-height: 1.5; resize: none; width: 100%; }
+        .textarea-retro:focus { outline: none; }
+
+        .input-retro { border: none; background: transparent; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: #333; width: 100%; border-bottom: 4px solid black; padding: 8px; }
+        .input-retro:focus { outline: none; background-color: #FBD000; }
+
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+
+        .fade-in { animation: fadeIn 0.4s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .hidden-step { display: none !important; }
+
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+
+        .pixel-text-shadow { text-shadow: 2px 2px 0px black; }
+
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #000; border-left: 2px solid #fff; }
+        ::-webkit-scrollbar-thumb { background: #8B3FB8; border: 2px solid #fff; }
+
+        .score-bar { height: 18px; background: #333; border: 2px solid #fff; margin-top: 5px; position: relative; overflow: hidden; }
+        .score-fill { height: 100%; transition: width 1.2s ease-out; width: 0%; }
+
+        @media print {
+            body { background: white !important; }
+            .crt::before { display: none; }
+            .no-print { display: none !important; }
+            .paper-box { box-shadow: none; border: 2px solid black; }
+            .score-bar { border: 2px solid black; background: #ddd; }
+            .score-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+
+        .big-grade { font-size: 3.6rem; font-family: 'Press Start 2P', cursive; text-shadow: 4px 4px 0px rgba(0,0,0,0.3); line-height: 1; }
+        @media (max-width: 640px) { .big-grade { font-size: 2.2rem; } }
+
+        .no-copy { user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; }
+        .no-copy input, .no-copy textarea { user-select: text; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; }
+
+        .field-hint { font-size: 10px; color: #666; font-family: 'Nunito', sans-serif; font-weight: 700; margin-top: 2px; padding: 2px 8px; background: #f0f0f0; border-radius: 4px; display: inline-block; }
+
+        .branch-guide { background: #fffbe6; border: 2px dashed #d4b24c; border-radius: 6px; padding: 8px 10px; font-family: 'Nunito', sans-serif; font-size: 11px; color: #5a4a1a; line-height: 1.4; margin-bottom: 6px; }
+        .branch-guide strong { color: #8B3FB8; }
+        .branch-guide ul { margin: 4px 0 0 16px; padding: 0; }
+        .branch-guide li { margin-bottom: 1px; }
+
+        .keywords-box { background: #eef7ff; border: 2px solid #049CD8; border-radius: 6px; padding: 8px 10px; margin-top: 6px; font-family: 'Nunito', sans-serif; font-size: 11px; color: #0a4a70; }
+        .keywords-box strong { font-family: 'Press Start 2P', cursive; font-size: 8px; display: block; margin-bottom: 4px; color: #049CD8; }
+        .keywords-box .kw { display: inline-block; background: white; border: 1px solid #7fb8e0; border-radius: 3px; padding: 1px 6px; margin: 2px 2px 2px 0; font-size: 10px; font-weight: 700; }
+
+        .mindmap-stage { position: relative; width: 100%; max-width: 950px; height: 900px; margin: 0 auto; background: linear-gradient(135deg, #f4f7fb, #e8eef7); border: 4px solid black; border-radius: 8px; overflow: hidden; }
+        .mindmap-stage > svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .mm-node { position: absolute; z-index: 3; border: 3px solid black; border-radius: 10px; box-shadow: 3px 3px 0 black; background: white; padding: 10px 12px; font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 700; color: #333; line-height: 1.35; overflow: hidden; }
+        .mm-node.center { background: #8B3FB8; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; font-family: 'Press Start 2P', cursive; font-size: 9px; padding: 10px; line-height: 1.4; }
+        .mm-node .tag { display: inline-block; font-family: 'Press Start 2P', cursive; font-size: 7px; padding: 3px 6px; border-radius: 3px; color: white; margin-bottom: 5px; }
+
+        .mm-pos-center { left: 50%; top: 50%; transform: translate(-50%, -50%); width: 180px; height: 180px; }
+        .mm-pos-a { left: 2%; top: 2%; width: 27%; height: 27%; }
+        .mm-pos-b { right: 2%; top: 2%; width: 27%; height: 27%; }
+        .mm-pos-c { left: 2%; top: 34%; width: 27%; height: 27%; }
+        .mm-pos-d { right: 2%; top: 34%; width: 27%; height: 27%; }
+        .mm-pos-e { left: 50%; bottom: 2%; transform: translateX(-50%); width: 55%; height: 26%; }
+
+        .mindmap-preview-stage { position: relative; width: 100%; max-width: 500px; height: 480px; margin: 0 auto; background: linear-gradient(135deg, #f4f7fb, #e8eef7); border: 4px solid black; border-radius: 8px; overflow: hidden; }
+        .mindmap-preview-stage > svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .mm-preview-node { position: absolute; z-index: 3; background: white; border: 2px solid black; border-radius: 6px; box-shadow: 2px 2px 0 black; padding: 5px 7px; font-family: 'Nunito', sans-serif; font-size: 9px; font-weight: 700; color: #333; line-height: 1.2; overflow: hidden; }
+        .mm-preview-node.center { background: #8B3FB8; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; font-family: 'Press Start 2P', cursive; font-size: 7px; padding: 6px; line-height: 1.3; }
+        .mm-preview-pos-center { left: 50%; top: 50%; transform: translate(-50%,-50%); width: 110px; height: 110px; }
+        .mm-preview-pos-a { left: 3%; top: 4%; width: 25%; height: 24%; }
+        .mm-preview-pos-b { right: 3%; top: 4%; width: 25%; height: 24%; }
+        .mm-preview-pos-c { left: 3%; top: 34%; width: 25%; height: 24%; }
+        .mm-preview-pos-d { right: 3%; top: 34%; width: 25%; height: 24%; }
+        .mm-preview-pos-e { left: 50%; bottom: 4%; transform: translateX(-50%); width: 60%; height: 22%; }
+
+        .toast-msg { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #43B047; color: white; padding: 14px 28px; border: 4px solid black; border-radius: 40px; font-family: 'Press Start 2P', cursive; font-size: 10px; box-shadow: 4px 4px 0 black; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .toast-msg.show { opacity: 1; }
+
+        .self-check-item { display: flex; align-items: flex-start; gap: 8px; background: white; padding: 8px 10px; border: 2px solid #ccc; border-radius: 6px; }
+        .self-check-item.checked { border-color: #43B047; background: #effbf0; }
+        .self-check-item input { margin-top: 3px; }
+
+        .criteria-row { background: #1a1f2b; border: 2px solid #4a5568; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+        .criteria-row.ok { border-color: #43B047; }
+        .criteria-row.warn { border-color: #FBD000; }
+        .criteria-row.bad { border-color: #E52521; }
+        .criteria-row .title { font-family: 'Press Start 2P', cursive; font-size: 9px; color: white; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
+        .criteria-row .pct { background: #43B047; padding: 2px 8px; border-radius: 10px; color: black; font-size: 10px; }
+        .criteria-row.warn .pct { background: #FBD000; }
+        .criteria-row.bad .pct { background: #E52521; color: white; }
+        .criteria-row .evalua { font-family: 'Nunito', sans-serif; font-size: 10px; color: #8fb5d9; background: #0d1420; padding: 6px 10px; border-left: 3px solid #4a5568; border-radius: 4px; margin-bottom: 8px; font-style: italic; }
+        .criteria-row p, .criteria-row li { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 11px; color: #cbd5e0; line-height: 1.5; }
+        .criteria-row ul { margin-left: 16px; margin-top: 4px; }
+        .criteria-row li.found { color: #86e69a; }
+        .criteria-row li.missing { color: #f5a3a8; }
+        .criteria-row .mejora { background: #1e3a2a; border-left: 3px solid #43B047; padding: 8px 12px; border-radius: 4px; margin-top: 8px; font-family: 'Nunito', sans-serif; font-size: 11px; color: #c8f0c8; line-height: 1.5; }
+        .criteria-row .mejora strong { color: #86e69a; }
+        .criteria-row.bad .mejora { background: #3a1e1e; border-left-color: #E52521; color: #f5c8c8; }
+        .criteria-row.bad .mejora strong { color: #f5a3a8; }
+        .criteria-row.warn .mejora { background: #3a321e; border-left-color: #FBD000; color: #f5e8c8; }
+        .criteria-row.warn .mejora strong { color: #fada5e; }
+
+        #floatingBack {
+            box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3), 4px 4px 0px 0px black;
+            transition: transform 0.1s;
+        }
+        #floatingBack:hover { transform: scale(1.05); }
+        #floatingBack:active { transform: translate(4px, 4px); box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.3), 0px 0px 0px 0px black; }
+    </style>
+</head>
+<body class="theme-overworld crt no-copy">
+
+    <script>
+        document.addEventListener('copy', e => { e.preventDefault(); alert('✋ No está permitido copiar texto. Escribe tu propia respuesta.'); });
+        document.addEventListener('paste', e => { e.preventDefault(); alert('✋ No está permitido pegar texto. Escribe tu propia respuesta.'); });
+        document.addEventListener('dragstart', e => e.preventDefault());
+        document.addEventListener('drop', e => e.preventDefault());
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'a')) {
+                e.preventDefault();
+                alert('✋ Acción no permitida. Escribe tus propias respuestas.');
+            }
+        });
+    </script>
+
+    <div id="toast" class="toast-msg">✔ Hecho</div>
+
+    <button id="floatingBack" onclick="goBackStep()"
+            class="fixed bottom-6 left-6 z-40 font-retro py-3 px-5 rounded-full mario-btn text-xs no-print hidden-step"
+            style="background:#8B3FB8; color:white;">
+        ← REGRESAR
+    </button>
+
+    <div id="hud" class="fixed top-4 left-4 right-4 flex justify-between z-50 pointer-events-none px-2 md:px-8 hidden-step no-print">
+        <div class="bg-transparent text-white font-retro text-xs md:text-sm drop-shadow-[2px_2px_0_rgba(0,0,0,1)] flex flex-col">
+            <span class="text-mario-yellow">JUGADOR 1</span>
+            <span id="hud-name" class="mt-1 uppercase text-shadow">---</span>
+        </div>
+        <div class="bg-transparent text-white font-retro text-xs md:text-sm drop-shadow-[2px_2px_0_rgba(0,0,0,1)] flex flex-col items-end">
+            <span class="text-mario-green">MUNDO / TIEMPO</span>
+            <span class="mt-1 flex items-center gap-4 text-xl text-white">
+                <span id="hud-world">4-1</span>
+                <span id="hud-time" class="text-mario-yellow text-sm">00:00</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="min-h-screen flex items-center justify-center p-4 pt-20 pb-20">
+        <div class="w-full max-w-6xl relative z-10">
+
+            <!-- STEP 0 -->
+            <section id="step-0" class="fade-in block">
+                <div class="text-center mb-8 float-anim">
+                    <div class="inline-block bg-black p-4 border-4 border-white shadow-[6px_6px_0_rgba(0,0,0,0.5)] mb-6">
+                        <span class="text-5xl">🧠</span>
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-retro text-mario-yellow mt-4 leading-tight" style="text-shadow: 4px 4px 0px black;">MISIÓN 4: MAPA MENTAL</h1>
+                    <h2 class="text-xl font-retro text-white mt-4" style="text-shadow: 2px 2px 0px black;">PAEC · HABILIDADES SOCIALES DE PLANIFICACIÓN</h2>
+
+                    <div class="bg-mario-purple text-white font-retro text-[9px] md:text-xs inline-block p-4 mt-6 border-4 border-black shadow-[4px_4px_0_black] leading-relaxed text-left max-w-2xl">
+                        📋 M.2. Actividad 2. Colaborativo PAEC<br><br>
+                        Elaborarás un <strong>MAPA MENTAL</strong> sobre las habilidades sociales de planificación para llevar a cabo la recolección de residuos sólidos.<br><br>
+                        Habilidades a incluir:<br>
+                        a) Fijar metas realistas.<br>
+                        b) Prever consecuencias de cada acción.<br>
+                        c) Mantener perseverancia y tolerar frustración.<br>
+                        d) Formular un plan paso a paso.<br>
+                        e) Evaluar logros y corregir errores.<br><br>
+                        ⚠️ Actividad individual. No se permite copiar/pegar.
+                    </div>
+
+                    <div class="bg-black text-white font-read text-[11px] md:text-xs inline-block p-5 mt-4 border-4 border-mario-yellow shadow-[4px_4px_0_black] leading-relaxed text-left max-w-2xl rounded">
+                        <p class="font-retro text-mario-yellow text-[10px] mb-3">🎯 ¿CÓMO SE EVALUARÁ TU TRABAJO? (10 PTS)</p>
+
+                        <div class="mb-3 pl-3 border-l-4 border-mario-green">
+                            <span class="text-mario-green font-bold">📌 CONTENIDO SEMÁNTICO (3 pts)</span><br>
+                            <strong class="text-white">¿Qué evalúa?</strong> Que uses el vocabulario técnico del tema en cada sección.<br>
+                            <strong class="text-white">¿Cómo lo sabrás?</strong> En cada rama verás una caja azul con las palabras exactas que el sistema buscará.<br>
+                            <strong class="text-white">Puntaje:</strong> ≥70% de coincidencias = 3 pts · 50-69% = 1.5 pts · &lt;50% = 0.5 pts
+                        </div>
+
+                        <div class="mb-3 pl-3 border-l-4 border-mario-sky">
+                            <span class="text-mario-sky font-bold">📌 RELACIONES CAUSALES (2 pts)</span><br>
+                            <strong class="text-white">¿Qué evalúa?</strong> Que conectes tus ideas con causa-efecto.<br>
+                            <strong class="text-white">Conectores esperados:</strong> <em>porque, ya que, por lo tanto, entonces, sin embargo, además, finalmente, en cambio, así mismo, debido a, por consiguiente...</em><br>
+                            <strong class="text-white">Puntaje:</strong> Variedad de conectores (1 pt) + estructuras "si...entonces..." (1 pt)
+                        </div>
+
+                        <div class="mb-3 pl-3 border-l-4 border-mario-red">
+                            <span class="text-mario-red font-bold">📌 FORMA Y ORTOGRAFÍA (2 pts)</span><br>
+                            <strong class="text-white">¿Qué evalúa?</strong> Mayúsculas al inicio de cada oración + signos de puntuación al final.<br>
+                            <strong class="text-white">Puntaje:</strong> 0-1 errores = 2 pts · 2-4 = 1.5 pts · 5-7 = 1 pt · 8+ = 0.5 pts
+                        </div>
+
+                        <div class="mb-3 pl-3 border-l-4 border-mario-purple">
+                            <span class="text-mario-purple font-bold">📌 AUTOEVALUACIÓN HONESTA (2 pts)</span><br>
+                            <strong class="text-white">¿Qué evalúa?</strong> Que marques con sinceridad los aspectos que completaste.<br>
+                            <strong class="text-white">Puntaje:</strong> 6 aspectos × 0.33 pts cada uno
+                        </div>
+
+                        <div class="mb-3 pl-3 border-l-4 border-mario-orange">
+                            <span class="text-mario-orange font-bold">📌 COHERENCIA TEMÁTICA (1 pt)</span><br>
+                            <strong class="text-white">¿Qué evalúa?</strong> Que TODO tu texto gire en torno al tema.<br>
+                            <strong class="text-white">Palabras ancla que debes usar:</strong> <em>residuo · recolección · planificación · comunidad</em><br>
+                            <strong class="text-white">Puntaje:</strong> ≥20 apariciones en total = 1 pt · 10-19 = 0.5 pt · &lt;10 = 0 pt
+                        </div>
+
+                        <p class="text-mario-yellow mt-3 text-[10px]">Recibirás un reporte con retroalimentación detallada indicando qué lograste y qué puedes mejorar.</p>
+                    </div>
+                </div>
+
+                <div class="paper-box p-6 md:p-8 rounded-lg max-w-md mx-auto mt-6">
+                    <div class="mb-4">
+                        <label class="font-retro text-[10px] text-mario-blue block mb-2">NOMBRE COMPLETO:</label>
+                        <input type="text" id="in-name" class="input-retro uppercase" placeholder="APELLIDOS Y NOMBRES" oninput="checkLogin()">
+                    </div>
+                    <div>
+                        <label class="font-retro text-[10px] text-mario-blue block mb-2">GRUPO:</label>
+                        <input type="text" id="in-group" class="input-retro uppercase" placeholder="EJ. 401" oninput="checkLogin()">
+                    </div>
+                    <button id="btn-start" onclick="goToStep(1)" disabled class="w-full bg-mario-green text-white font-retro py-4 mt-8 mario-btn text-sm">START MISSION ➔</button>
+                </div>
+            </section>
+
+            <!-- STEP 1 -->
+            <section id="step-1" class="hidden-step fade-in">
+                <div class="text-center drop-shadow-[2px_2px_0_rgba(0,0,0,1)] mb-6">
+                    <h2 class="text-white font-retro text-xl tracking-widest">NIVEL 4-1: NODO CENTRAL</h2>
+                    <p class="text-mario-yellow font-retro text-[10px] mt-2 uppercase">Define el corazón de tu mapa mental</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="paper-box p-6 rounded-lg space-y-5 h-fit">
+                        <div class="dialog-box p-3 rounded mb-4" style="border-color:#8B3FB8;">
+                            <p class="font-retro text-[8px] text-white leading-relaxed">
+                                <span class="text-mario-yellow">MISIÓN:</span> Define tu concepto central y describe el contexto del proyecto de recolección de residuos en tu comunidad.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="font-retro text-[9px] text-mario-blue block mb-2">1. TÍTULO DEL MAPA MENTAL (MÍN. 25 LETRAS)</label>
+                            <input type="text" id="mm-title" oninput="updateMindMap(); checkLength(this, 25, 'c-title')" class="input-retro text-sm font-bold" placeholder="Ej: Planificando Juntos la Recolección de Residuos">
+                            <div class="field-hint">💡 Un título claro que resuma el propósito del mapa</div>
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-title">0</span>/25</div>
+                        </div>
+
+                        <div class="p-3 border-2 border-dashed rounded" style="background:#faf5ff; border-color:#c9a8e8;">
+                            <label class="font-retro text-[9px] block mb-2" style="color:#8B3FB8;">2. CONTEXTO / IDEA CENTRAL (MÍN. 400 LETRAS)</label>
+                            <textarea id="mm-context" oninput="updateMindMap(); checkLength(this, 400, 'c-ctx')" rows="10" class="textarea-retro" placeholder="Ej: En mi comunidad escolar se ha detectado una acumulación de residuos sólidos en los patios..."></textarea>
+                            <div class="field-hint">💡 Describe el problema, participantes y propósito del proyecto</div>
+
+                            <div class="keywords-box">
+                                <strong>💬 EL SISTEMA BUSCARÁ ESTAS PALABRAS:</strong>
+                                <span class="kw">residuo</span><span class="kw">problema</span><span class="kw">comunidad</span>
+                                <span class="kw">escuela</span><span class="kw">participar</span><span class="kw">propósito</span>
+                                <span class="kw">familia</span><span class="kw">amigos</span><span class="kw">solución</span>
+                                <span class="kw">proyecto</span><span class="kw">plan</span><span class="kw">contaminación</span>
+                                <span class="kw">entorno</span><span class="kw">mejorar</span><span class="kw">convivencia</span>
+                                <br><em style="font-size:10px; color:#5a7a90;">Incluye al menos 10 de estas 15 palabras. No las copies literalmente, intégralas en tus oraciones.</em>
+                            </div>
+
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-ctx">0</span>/400</div>
+                        </div>
+
+                        <div id="error-1" class="hidden bg-mario-red text-white p-3 rounded font-retro text-[8px] border-2 border-black text-center mt-2">FALTAN LETRAS PARA AVANZAR</div>
+
+                        <button onclick="validateStep1()" class="w-full bg-mario-red text-white font-retro py-3 mt-2 rounded mario-btn text-xs">AVANZAR A LAS RAMAS ➔</button>
+                    </div>
+
+                    <div class="dialog-box p-6 rounded-lg flex items-center justify-center bg-mario-underground">
+                        <div class="mindmap-preview-stage">
+                            <p style="text-align:center; font-family:'Press Start 2P'; font-size:7px; color:#8B3FB8; margin:12px 0 0; position:relative; z-index:4;">PREVISUALIZACIÓN DEL NODO</p>
+                            <div class="mm-preview-node center mm-preview-pos-center">
+                                <span id="prev-mm-title">MI MAPA MENTAL</span>
+                            </div>
+                            <div class="mm-preview-node" style="left:50%; bottom:4%; transform:translateX(-50%); width:80%; height:26%;">
+                                <span class="tag" style="background:#8B3FB8;">CONTEXTO</span>
+                                <p id="prev-mm-context" style="font-weight:600; color:#555; font-size:9px;">...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 2 -->
+            <section id="step-2" class="hidden-step fade-in">
+                <div class="text-center drop-shadow-[2px_2px_0_rgba(0,0,0,1)] mb-6">
+                    <h2 class="text-white font-retro text-xl tracking-widest">NIVEL 4-2: LAS 5 RAMAS DEL MAPA</h2>
+                    <p class="text-mario-yellow font-retro text-[10px] mt-2 uppercase">Habilidades sociales de planificación</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="paper-box p-6 rounded-lg space-y-4 h-fit max-h-[85vh] overflow-y-auto">
+
+                        <div class="dialog-box p-3 rounded mb-2" style="border-color:#8B3FB8;">
+                            <p class="font-retro text-[8px] text-white leading-relaxed">
+                                <span class="text-mario-yellow">INSTRUCCIÓN:</span> Cada rama tiene un mínimo de <strong>200 letras</strong>, un guía de qué escribir, y una caja azul con las <strong>palabras clave esperadas</strong>.
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 border-2 border-black rounded">
+                            <label class="font-retro text-[9px] block mb-2" style="color:#43B047;">🌱 RAMA A · FIJAR METAS REALISTAS (MÍN. 200)</label>
+                            <div class="branch-guide">
+                                <strong>¿Qué escribir?</strong> Define metas específicas (kg, plazo, participantes) y explica <strong>por qué son realistas</strong> con datos concretos.
+                                <ul><li>Meta principal (cantidad + plazo)</li><li>Cálculo que la hace realista</li><li>Meta secundaria medible</li></ul>
+                            </div>
+                            <textarea id="mm-a" oninput="updateMindMap(); checkLength(this, 200, 'c-a'); updateTotal()" rows="4" class="textarea-retro p-2 border-2 border-gray-300 w-full bg-white" placeholder="Ej: Nuestra meta es recolectar 50 kg en un mes porque..."></textarea>
+                            <div class="keywords-box">
+                                <strong>💬 PALABRAS CLAVE ESPERADAS:</strong>
+                                <span class="kw">meta</span><span class="kw">objetivo</span><span class="kw">realista</span>
+                                <span class="kw">cantidad</span><span class="kw">plazo</span><span class="kw">kilogramo</span>
+                                <span class="kw">mes</span><span class="kw">equipo</span><span class="kw">estudiante</span>
+                                <span class="kw">cálculo</span><span class="kw">alcanzable</span><span class="kw">medible</span>
+                                <span class="kw">porcentaje</span>
+                            </div>
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-a">0</span>/200</div>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 border-2 border-black rounded">
+                            <label class="font-retro text-[9px] block mb-2" style="color:#049CD8;">🔍 RAMA B · PREVER CONSECUENCIAS (MÍN. 200)</label>
+                            <div class="branch-guide">
+                                <strong>¿Qué escribir?</strong> Consecuencias positivas y negativas. Usa "Si hacemos X → ocurrirá Y". Incluye riesgos.
+                                <ul><li>2 consecuencias positivas</li><li>2 consecuencias negativas</li><li>1 riesgo y cómo mitigarlo</li></ul>
+                            </div>
+                            <textarea id="mm-b" oninput="updateMindMap(); checkLength(this, 200, 'c-b'); updateTotal()" rows="4" class="textarea-retro p-2 border-2 border-gray-300 w-full bg-white" placeholder="Ej: Si separamos correctamente los residuos, entonces..."></textarea>
+                            <div class="keywords-box">
+                                <strong>💬 PALABRAS CLAVE ESPERADAS:</strong>
+                                <span class="kw">consecuencia</span><span class="kw">positivo</span><span class="kw">negativo</span>
+                                <span class="kw">riesgo</span><span class="kw">beneficio</span><span class="kw">contaminación</span>
+                                <span class="kw">plaga</span><span class="kw">prevenir</span><span class="kw">mitigar</span>
+                                <span class="kw">provocar</span><span class="kw">afectar</span><span class="kw">mejorar</span>
+                            </div>
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-b">0</span>/200</div>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 border-2 border-black rounded">
+                            <label class="font-retro text-[9px] block mb-2" style="color:#E52521;">💪 RAMA C · PERSEVERANCIA Y FRUSTRACIÓN (MÍN. 200)</label>
+                            <div class="branch-guide">
+                                <strong>¿Qué escribir?</strong> Dificultades reales y estrategias concretas para no rendirte. Explica qué significa "tolerar la frustración".
+                                <ul><li>2 dificultades esperadas</li><li>2 estrategias para mantener el ánimo</li><li>Reflexión personal</li></ul>
+                            </div>
+                            <textarea id="mm-c" oninput="updateMindMap(); checkLength(this, 200, 'c-c'); updateTotal()" rows="4" class="textarea-retro p-2 border-2 border-gray-300 w-full bg-white" placeholder="Ej: Sabemos que surgirán dificultades porque..."></textarea>
+                            <div class="keywords-box">
+                                <strong>💬 PALABRAS CLAVE ESPERADAS:</strong>
+                                <span class="kw">frustración</span><span class="kw">perseverancia</span><span class="kw">dificultad</span>
+                                <span class="kw">ánimo</span><span class="kw">obstáculo</span><span class="kw">tolerar</span>
+                                <span class="kw">rendir</span><span class="kw">motivación</span><span class="kw">estrategia</span>
+                                <span class="kw">superar</span><span class="kw">error</span><span class="kw">aprender</span>
+                            </div>
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-c">0</span>/200</div>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 border-2 border-black rounded">
+                            <label class="font-retro text-[9px] block mb-2" style="color:#a58500;">🗺️ RAMA D · PLAN PASO A PASO (MÍN. 200)</label>
+                            <div class="branch-guide">
+                                <strong>¿Qué escribir?</strong> Pasos ordenados y numerados. Cada paso inicia con verbo de acción. Incluye responsables y recursos.
+                                <ul><li>Entre 6 y 10 pasos</li><li>Cada paso inicia con verbo</li><li>Recursos y responsables</li></ul>
+                            </div>
+                            <textarea id="mm-d" oninput="updateMindMap(); checkLength(this, 200, 'c-d'); updateTotal()" rows="4" class="textarea-retro p-2 border-2 border-gray-300 w-full bg-white" placeholder="Ej: Paso 1: Formar equipos. Paso 2: Asignar zonas..."></textarea>
+                            <div class="keywords-box">
+                                <strong>💬 PALABRAS CLAVE ESPERADAS:</strong>
+                                <span class="kw">paso</span><span class="kw">formar</span><span class="kw">asignar</span>
+                                <span class="kw">conseguir</span><span class="kw">programar</span><span class="kw">separar</span>
+                                <span class="kw">registrar</span><span class="kw">coordinar</span><span class="kw">evaluar</span>
+                                <span class="kw">recurso</span><span class="kw">responsable</span><span class="kw">bitácora</span>
+                            </div>
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-d">0</span>/200</div>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 border-2 border-black rounded">
+                            <label class="font-retro text-[9px] block mb-2" style="color:#F79022;">📊 RAMA E · EVALUAR Y CORREGIR (MÍN. 200)</label>
+                            <div class="branch-guide">
+                                <strong>¿Qué escribir?</strong> Cómo medirán el éxito (indicadores). Qué harán si no se cumplen las metas.
+                                <ul><li>2 indicadores medibles</li><li>Plan de corrección de errores</li><li>Reconocimiento de logros</li></ul>
+                            </div>
+                            <textarea id="mm-e" oninput="updateMindMap(); checkLength(this, 200, 'c-e'); updateTotal()" rows="4" class="textarea-retro p-2 border-2 border-gray-300 w-full bg-white" placeholder="Ej: Al finalizar el mes, compararemos los kg recolectados con la meta..."></textarea>
+                            <div class="keywords-box">
+                                <strong>💬 PALABRAS CLAVE ESPERADAS:</strong>
+                                <span class="kw">evaluar</span><span class="kw">indicador</span><span class="kw">medir</span>
+                                <span class="kw">logro</span><span class="kw">error</span><span class="kw">corregir</span>
+                                <span class="kw">mejorar</span><span class="kw">meta</span><span class="kw">comparar</span>
+                                <span class="kw">causa</span><span class="kw">ajustar</span><span class="kw">reconocer</span>
+                                <span class="kw">celebrar</span>
+                            </div>
+                            <div class="text-right font-retro text-[8px] text-mario-red mt-1">LETRAS: <span id="c-e">0</span>/200</div>
+                        </div>
+
+                        <div class="p-4 border-4 border-double border-black rounded bg-blue-50">
+                            <h4 class="font-retro text-[10px] mb-2 text-center" style="color:#049CD8;">🧭 AUTOEVALUACIÓN HONESTA (MÁX. 2 PTS)</h4>
+                            <p class="font-read text-[10px] text-gray-600 mb-3 text-center">Marca cada elemento que completaste <strong>con profundidad y ejemplos concretos</strong>. Cada uno vale <strong>0.33 pts</strong>.</p>
+
+                            <div class="space-y-2">
+                                <label class="self-check-item" id="sc-item-ctx">
+                                    <input type="checkbox" name="selfcheck" value="ctx" onchange="updateSelfAssessment()">
+                                    <span class="font-read text-xs"><strong>Contexto / idea central</strong> — describí el problema, participantes y propósito con detalle.</span>
+                                </label>
+                                <label class="self-check-item" id="sc-item-a">
+                                    <input type="checkbox" name="selfcheck" value="a" onchange="updateSelfAssessment()">
+                                    <span class="font-read text-xs"><strong>Rama A · Metas realistas</strong> — incluí metas específicas con cálculos alcanzables.</span>
+                                </label>
+                                <label class="self-check-item" id="sc-item-b">
+                                    <input type="checkbox" name="selfcheck" value="b" onchange="updateSelfAssessment()">
+                                    <span class="font-read text-xs"><strong>Rama B · Consecuencias</strong> — analicé consecuencias positivas y negativas.</span>
+                                </label>
+                                <label class="self-check-item" id="sc-item-c">
+                                    <input type="checkbox" name="selfcheck" value="c" onchange="updateSelfAssessment()">
+                                    <span class="font-read text-xs"><strong>Rama C · Perseverancia</strong> — describí dificultades y estrategias concretas.</span>
+                                </label>
+                                <label class="self-check-item" id="sc-item-d">
+                                    <input type="checkbox" name="selfcheck" value="d" onchange="updateSelfAssessment()">
+                                    <span class="font-read text-xs"><strong>Rama D · Plan paso a paso</strong> — enumeré pasos con verbos de acción.</span>
+                                </label>
+                                <label class="self-check-item" id="sc-item-e">
+                                    <input type="checkbox" name="selfcheck" value="e" onchange="updateSelfAssessment()">
+                                    <span class="font-read text-xs"><strong>Rama E · Evaluar y corregir</strong> — definí indicadores y plan de corrección.</span>
+                                </label>
+                            </div>
+
+                            <div class="text-right font-retro text-[10px] mt-3" style="color:#049CD8;">
+                                AUTOEVALUACIÓN: <span id="sa-total">0.0</span>/2 PTS (<span id="sa-pct">0</span>%)
+                            </div>
+                        </div>
+
+                        <div id="total-ramas" class="text-right font-retro text-[9px] text-mario-blue mt-2">TOTAL RAMAS: <span id="total-ramas-count">0</span>/1000 LETRAS</div>
+
+                        <div id="error-2" class="hidden bg-mario-red text-white p-3 rounded font-retro text-[8px] border-2 border-black text-center mt-2">COMPLETA TODAS LAS RAMAS (MÍN. 200 LETRAS C/U)</div>
+
+                        <div class="flex gap-2">
+                            <button onclick="goToStep(1)" class="bg-gray-400 text-white font-retro py-3 px-4 rounded mario-btn text-xs">➔ BACK</button>
+                            <button onclick="validateStep2()" class="w-full bg-mario-yellow text-black font-retro py-3 rounded mario-btn text-xs">EVALUAR MAPA MENTAL ⭐</button>
+                        </div>
+                    </div>
+
+                    <div class="dialog-box p-4 rounded-lg flex items-center justify-center bg-mario-underground">
+                        <div class="mindmap-preview-stage">
+                            <p style="text-align:center; font-family:'Press Start 2P'; font-size:7px; color:#8B3FB8; position:absolute; top:8px; left:0; right:0; z-index:4;">MAPA EN CONSTRUCCIÓN</p>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 480" preserveAspectRatio="none">
+                                <line x1="250" y1="240" x2="75" y2="55" stroke="#43B047" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="250" y1="240" x2="425" y2="55" stroke="#049CD8" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="250" y1="240" x2="75" y2="220" stroke="#E52521" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="250" y1="240" x2="425" y2="220" stroke="#FBD000" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="250" y1="240" x2="250" y2="430" stroke="#F79022" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                            <div class="mm-preview-node center mm-preview-pos-center"><span id="prev-mm-title-2">MI MAPA MENTAL</span></div>
+                            <div class="mm-preview-node mm-preview-pos-a" style="border-left:4px solid #43B047;"><span class="tag" style="background:#43B047;">A</span><p id="prev-mm-a">...</p></div>
+                            <div class="mm-preview-node mm-preview-pos-b" style="border-left:4px solid #049CD8;"><span class="tag" style="background:#049CD8;">B</span><p id="prev-mm-b">...</p></div>
+                            <div class="mm-preview-node mm-preview-pos-c" style="border-left:4px solid #E52521;"><span class="tag" style="background:#E52521;">C</span><p id="prev-mm-c">...</p></div>
+                            <div class="mm-preview-node mm-preview-pos-d" style="border-left:4px solid #FBD000;"><span class="tag" style="background:#FBD000; color:#333;">D</span><p id="prev-mm-d">...</p></div>
+                            <div class="mm-preview-node mm-preview-pos-e" style="border-left:4px solid #F79022;"><span class="tag" style="background:#F79022;">E</span><p id="prev-mm-e">...</p></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 3 -->
+            <section id="step-3" class="hidden-step fade-in text-center pt-10">
+                <div class="dialog-box p-10 max-w-md mx-auto relative overflow-hidden bg-mario-castle">
+                    <div class="relative z-10">
+                        <h2 class="text-2xl font-retro text-mario-yellow mb-6">SISTEMA EVALUANDO...</h2>
+                        <div class="text-left font-retro text-[8px] space-y-4 mb-8 text-gray-300">
+                            <p id="calc-length">[*] CONTENIDO SEMÁNTICO...... <span class="text-white animate-pulse">Analizando</span></p>
+                            <p id="calc-vocab">[*] RELACIONES CAUSALES..... <span class="text-white animate-pulse">Buscando</span></p>
+                            <p id="calc-spam">[*] FORMA Y ORTOGRAFÍA...... <span class="text-white animate-pulse">Revisando</span></p>
+                            <p id="calc-coh">[*] COHERENCIA TEMÁTICA..... <span class="text-white animate-pulse">Midiendo</span></p>
+                        </div>
+                        <div class="mt-8 border-4 border-white h-6 p-1 bg-black w-full">
+                            <div id="progress-bar" class="bg-mario-green h-full w-0 transition-all duration-[4000ms] ease-linear"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 4 -->
+            <section id="step-4" class="hidden-step fade-in">
+                <div class="text-center mb-6 no-print">
+                    <h2 class="text-3xl font-retro text-white pixel-text-shadow mb-2">¡MISIÓN COMPLETADA!</h2>
+                    <p class="text-mario-yellow font-retro text-xs drop-shadow-md">Captura tu mapa mental como evidencia.</p>
+                    <div class="mt-4 flex flex-wrap justify-center gap-4">
+                        <button onclick="takeScreenshot()" id="screenshotBtn" class="bg-mario-purple text-white font-retro py-3 px-6 rounded mario-btn text-sm" style="background:#8B3FB8;">📸 CAPTURAR PRODUCTO</button>
+                        <a href="index.html" class="inline-block text-white font-retro py-3 px-6 rounded mario-btn text-sm" style="background:#049CD8;">🏠 VOLVER A CASA</a>
+                    </div>
+                </div>
+
+                <div id="capture-area" class="space-y-8 bg-white p-8 border-8 border-black">
+
+                    <div class="border-b-8 border-black pb-6 mb-6">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                            <div class="text-center md:text-left flex-1">
+                                <h1 class="font-retro text-2xl text-black uppercase mb-2">REPORTE DE MISIÓN 4</h1>
+                                <p class="font-read font-bold text-gray-600">Mapa Mental PAEC · Habilidades Sociales de Planificación</p>
+                                <div class="mt-4 font-retro text-[10px] space-y-2">
+                                    <p>JUGADOR: <span id="final-name" class="text-mario-blue text-sm"></span></p>
+                                    <p>GRUPO: <span id="final-group" class="text-mario-red text-sm"></span></p>
+                                    <p>TIEMPO: <span id="final-time" class="text-black"></span></p>
+                                </div>
+                            </div>
+
+                            <div class="bg-black text-white p-4 border-4 border-gray-400 w-full md:w-1/2 rounded-sm shadow-md">
+                                <p class="font-retro text-[9px] text-mario-yellow mb-3 text-center">PUNTAJE DEL SISTEMA</p>
+
+                                <div class="mb-2">
+                                    <div class="flex justify-between font-retro text-[6px] mb-1"><span>CONTENIDO SEMÁNTICO</span><span id="score-e3">0/3 · 0%</span></div>
+                                    <div class="score-bar"><div id="bar-e3" class="score-fill bg-mario-green"></div></div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="flex justify-between font-retro text-[6px] mb-1"><span>RELACIONES CAUSALES</span><span id="score-cau">0/2 · 0%</span></div>
+                                    <div class="score-bar"><div id="bar-cau" class="score-fill bg-mario-sky"></div></div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="flex justify-between font-retro text-[6px] mb-1"><span>FORMA Y ORTOGRAFÍA</span><span id="score-ort">0/2 · 0%</span></div>
+                                    <div class="score-bar"><div id="bar-ort" class="score-fill bg-mario-red"></div></div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="flex justify-between font-retro text-[6px] mb-1"><span>AUTOEVALUACIÓN</span><span id="score-auto">0/2 · 0%</span></div>
+                                    <div class="score-bar"><div id="bar-auto" class="score-fill" style="background:#8B3FB8;"></div></div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="flex justify-between font-retro text-[6px] mb-1"><span>COHERENCIA TEMÁTICA</span><span id="score-coh">0/1 · 0%</span></div>
+                                    <div class="score-bar"><div id="bar-coh" class="score-fill bg-mario-orange"></div></div>
+                                </div>
+
+                                <div class="text-center mt-4 border-t-2 border-dashed border-gray-600 pt-3">
+                                    <p class="font-retro text-[7px] text-gray-400">CALIFICACIÓN FINAL</p>
+                                    <p id="final-grade" class="big-grade text-mario-yellow"></p>
+                                    <p id="final-grade-pct" class="font-retro text-[9px] text-gray-400 mt-1"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-black p-5 rounded-lg border-4 border-mario-yellow">
+                        <h3 class="font-retro text-mario-yellow text-sm mb-4 text-center">🔍 RETROALIMENTACIÓN DETALLADA</h3>
+                        <div id="detailed-feedback"></div>
+                    </div>
+
+                    <div class="w-full mx-auto paper-box p-8 relative">
+                        <div class="absolute top-0 left-0 w-full h-4" style="background:#8B3FB8;"></div>
+                        <h2 class="font-retro text-xl text-black mb-6 text-center mt-2">🗺️ MAPA MENTAL ELABORADO</h2>
+
+                        <div class="mindmap-stage">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900" preserveAspectRatio="none">
+                                <line x1="500" y1="450" x2="150" y2="135" stroke="#43B047" stroke-width="5" stroke-linecap="round"/>
+                                <line x1="500" y1="450" x2="850" y2="135" stroke="#049CD8" stroke-width="5" stroke-linecap="round"/>
+                                <line x1="500" y1="450" x2="150" y2="425" stroke="#E52521" stroke-width="5" stroke-linecap="round"/>
+                                <line x1="500" y1="450" x2="850" y2="425" stroke="#FBD000" stroke-width="5" stroke-linecap="round"/>
+                                <line x1="500" y1="450" x2="500" y2="790" stroke="#F79022" stroke-width="5" stroke-linecap="round"/>
+                                <circle cx="500" cy="450" r="12" fill="#8B3FB8" stroke="black" stroke-width="4"/>
+                                <circle cx="150" cy="135" r="9" fill="#43B047" stroke="black" stroke-width="3"/>
+                                <circle cx="850" cy="135" r="9" fill="#049CD8" stroke="black" stroke-width="3"/>
+                                <circle cx="150" cy="425" r="9" fill="#E52521" stroke="black" stroke-width="3"/>
+                                <circle cx="850" cy="425" r="9" fill="#FBD000" stroke="black" stroke-width="3"/>
+                                <circle cx="500" cy="790" r="9" fill="#F79022" stroke="black" stroke-width="3"/>
+                            </svg>
+
+                            <div class="mm-node center mm-pos-center"><span id="final-mm-title"></span></div>
+                            <div class="mm-node mm-pos-a" style="border-left:8px solid #43B047;"><span class="tag" style="background:#43B047;">A · METAS REALISTAS</span><p id="final-mm-a" style="font-size:11px; white-space:pre-wrap; margin-top:4px;"></p></div>
+                            <div class="mm-node mm-pos-b" style="border-left:8px solid #049CD8;"><span class="tag" style="background:#049CD8;">B · CONSECUENCIAS</span><p id="final-mm-b" style="font-size:11px; white-space:pre-wrap; margin-top:4px;"></p></div>
+                            <div class="mm-node mm-pos-c" style="border-left:8px solid #E52521;"><span class="tag" style="background:#E52521;">C · PERSEVERANCIA</span><p id="final-mm-c" style="font-size:11px; white-space:pre-wrap; margin-top:4px;"></p></div>
+                            <div class="mm-node mm-pos-d" style="border-left:8px solid #FBD000;"><span class="tag" style="background:#FBD000; color:#333;">D · PLAN PASO A PASO</span><p id="final-mm-d" style="font-size:11px; white-space:pre-wrap; margin-top:4px;"></p></div>
+                            <div class="mm-node mm-pos-e" style="border-left:8px solid #F79022;"><span class="tag" style="background:#F79022;">E · EVALUAR Y CORREGIR</span><p id="final-mm-e" style="font-size:11px; white-space:pre-wrap; margin-top:4px;"></p></div>
+                        </div>
+
+                        <div class="mt-6 p-4 border-4 border-black rounded" style="background:#faf5ff;">
+                            <p class="font-retro text-[9px] mb-2" style="color:#8B3FB8;">🎯 CONTEXTO / IDEA CENTRAL:</p>
+                            <p id="final-mm-context" class="font-read text-xs text-gray-700 whitespace-pre-wrap"></p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        window.onerror = function(msg, src, line, col, err) {
+            console.error('🚨 Error capturado:', msg, 'en línea', line);
+            const step3 = document.getElementById('step-3');
+            if (step3 && !step3.classList.contains('hidden-step')) {
+                console.log('Recuperando desde step-3...');
+                document.body.className = "theme-success crt";
+                try { goToStep(4); } catch(e) { console.error(e); }
+            }
+        };
+
+        let startTime;
+        let timerInterval;
+        let currentStep = 0;
+
+        function checkLogin() {
+            const n = document.getElementById('in-name').value.trim();
+            const g = document.getElementById('in-group').value.trim();
+            document.getElementById('btn-start').disabled = !(n.length > 3 && g.length > 1);
+        }
+
+        function updateClock() {
+            const diff = Math.floor((new Date() - startTime) / 1000);
+            const m = String(Math.floor(diff / 60)).padStart(2, '0');
+            const s = String(diff % 60).padStart(2, '0');
+            document.getElementById('hud-time').innerText = `${m}:${s}`;
+        }
+
+        function goToStep(step) {
+            currentStep = step;
+            if (step === 1) {
+                const name = document.getElementById('in-name').value;
+                document.getElementById('hud-name').innerText = name.split(' ')[0].substring(0, 10);
+                document.getElementById('hud').classList.remove('hidden-step');
+                document.body.className = "theme-purple crt";
+                document.getElementById('hud-world').innerText = "4-1";
+                if (!startTime) {
+                    startTime = new Date();
+                    timerInterval = setInterval(updateClock, 1000);
+                }
+            }
+            document.querySelectorAll('section').forEach(el => el.classList.add('hidden-step'));
+            document.getElementById('step-' + step).classList.remove('hidden-step');
+            window.scrollTo(0, 0);
+
+            const fb = document.getElementById('floatingBack');
+            if (step === 1 || step === 2) {
+                fb.classList.remove('hidden-step');
+            } else {
+                fb.classList.add('hidden-step');
+            }
+        }
+
+        function goBackStep() {
+            if (currentStep > 0) {
+                goToStep(currentStep - 1);
+            }
+        }
+
+        function checkLength(el, min, counterId) {
+            const len = el.value.trim().length;
+            const counter = document.getElementById(counterId);
+            if (counter) {
+                counter.innerText = len;
+                if (len >= min) {
+                    counter.parentElement.classList.remove('text-mario-red');
+                    counter.parentElement.classList.add('text-mario-green');
+                } else {
+                    counter.parentElement.classList.add('text-mario-red');
+                    counter.parentElement.classList.remove('text-mario-green');
+                }
+            }
+        }
+
+        function updateTotal() {
+            let total = 0;
+            ['mm-a','mm-b','mm-c','mm-d','mm-e'].forEach(id => total += document.getElementById(id).value.trim().length);
+            document.getElementById('total-ramas-count').innerText = total;
+        }
+
+        function updateSelfAssessment() {
+            const checks = document.querySelectorAll('input[name="selfcheck"]:checked');
+            const total = checks.length * (2 / 6);
+            document.querySelectorAll('input[name="selfcheck"]').forEach(cb => {
+                const label = cb.closest('.self-check-item');
+                if (cb.checked) label.classList.add('checked');
+                else label.classList.remove('checked');
+            });
+            document.getElementById('sa-total').innerText = total.toFixed(2);
+            document.getElementById('sa-pct').innerText = Math.round((checks.length / 6) * 100);
+            return Math.round(total * 100) / 100;
+        }
+
+        function validateLengths(fields) {
+            for (let f of fields) {
+                if (document.getElementById(f.id).value.trim().length < f.min) return false;
+            }
+            return true;
+        }
+
+        function triggerError(id, container) {
+            const err = document.getElementById(id);
+            const con = document.getElementById(container);
+            err.classList.remove('hidden');
+            con.classList.remove('shake');
+            void con.offsetWidth;
+            con.classList.add('shake');
+            setTimeout(() => err.classList.add('hidden'), 3000);
+        }
+
+        function updateMindMap() {
+            const t1 = document.getElementById('mm-title').value || 'MI MAPA MENTAL';
+            document.getElementById('prev-mm-title').innerText = t1;
+            document.getElementById('prev-mm-title-2').innerText = t1;
+            document.getElementById('prev-mm-context').innerText = document.getElementById('mm-context').value || 'Empieza a escribir para previsualizar...';
+            ['a','b','c','d','e'].forEach(k => {
+                const el = document.getElementById('prev-mm-' + k);
+                if (el) el.innerText = document.getElementById('mm-' + k).value || '...';
+            });
+        }
+
+        function validateStep1() {
+            const fields = [{ id: 'mm-title', min: 25 }, { id: 'mm-context', min: 400 }];
+            if (!validateLengths(fields)) { triggerError('error-1', 'step-1'); return; }
+            document.body.className = "theme-underground crt";
+            document.getElementById('hud-world').innerText = "4-2";
+            goToStep(2);
+        }
+
+        function validateStep2() {
+            const fields = [
+                { id: 'mm-a', min: 200 }, { id: 'mm-b', min: 200 }, { id: 'mm-c', min: 200 },
+                { id: 'mm-d', min: 200 }, { id: 'mm-e', min: 200 }
+            ];
+            if (!validateLengths(fields)) { triggerError('error-2', 'step-2'); return; }
+
+            clearInterval(timerInterval);
+            const timeInSeconds = Math.floor((new Date() - startTime) / 1000);
+
+            document.body.className = "theme-castle crt";
+            document.getElementById('hud').classList.add('hidden-step');
+            goToStep(3);
+
+            setTimeout(() => document.getElementById('calc-length').innerHTML = '[*] CONTENIDO SEMÁNTICO...... <span class="text-mario-green">OK</span>', 1000);
+            setTimeout(() => document.getElementById('calc-vocab').innerHTML = '[*] RELACIONES CAUSALES..... <span class="text-mario-green">LISTO</span>', 2000);
+            setTimeout(() => document.getElementById('calc-spam').innerHTML = '[*] FORMA Y ORTOGRAFÍA...... <span class="text-mario-green">REVISADO</span>', 3000);
+            setTimeout(() => document.getElementById('calc-coh').innerHTML = '[*] COHERENCIA TEMÁTICA..... <span class="text-mario-green">MEDIDO</span>', 3500);
+            setTimeout(() => document.getElementById('progress-bar').style.width = '100%', 100);
+
+            setTimeout(() => {
+                try {
+                    const autoScore = updateSelfAssessment();
+                    const results = runHeuristicEngine(timeInSeconds, autoScore);
+                    generateFinalReport(results, timeInSeconds);
+                } catch (err) {
+                    console.error('Error en evaluación:', err);
+                    document.body.className = "theme-success crt";
+                    goToStep(4);
+                }
+            }, 4500);
+        }
+
+        const KEYWORD_CLUSTERS = {
+            ctx: { label: 'Contexto', words: ['residuo','problema','comunidad','escuela','participar','proposito','familia','amigos','solucion','proyecto','plan','contaminacion','entorno','mejorar','convivencia'] },
+            a: { label: 'Rama A · Metas', words: ['meta','objetivo','realista','cantidad','plazo','kilogramo','kilo','mes','equipo','estudiante','calculo','alcanzable','medible','porcentaje','recolectar'] },
+            b: { label: 'Rama B · Consecuencias', words: ['consecuencia','positivo','negativo','riesgo','beneficio','contaminacion','plaga','prevenir','mitigar','provocar','afectar','mejorar'] },
+            c: { label: 'Rama C · Perseverancia', words: ['frustracion','perseverancia','dificultad','animo','obstaculo','tolerar','rendir','motivacion','estrategia','superar','error','aprender'] },
+            d: { label: 'Rama D · Plan', words: ['paso','formar','asignar','conseguir','programar','separar','registrar','coordinar','evaluar','recurso','responsable','bitacora'] },
+            e: { label: 'Rama E · Evaluar', words: ['evaluar','indicador','medir','logro','error','corregir','mejorar','meta','comparar','causa','ajustar','reconocer','celebrar'] }
+        };
+
+        const LOGICAL_CONNECTORS = [
+            'porque','ya que','por lo tanto','entonces','sin embargo','ademas','finalmente',
+            'en cambio','asi mismo','asi que','debido a','gracias a','por consiguiente',
+            'en consecuencia','por eso','dado que','puesto que','de modo que','con el fin de',
+            'para que','aunque','mientras','por ejemplo','en primer lugar','por ultimo',
+            'ademas de','no obstante','por otro lado'
+        ];
+
+        const THEME_ANCHORS = ['residuo', 'recoleccion', 'recolectar', 'planificacion', 'plan', 'comunidad'];
+
+        function normalize(text) {
+            return text.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[.,;:()¡!¿?"'«»\-–—]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function countKeywords(text, keywordList) {
+            const norm = normalize(text);
+            const found = [], missing = [];
+            keywordList.forEach(kw => {
+                if (norm.includes(normalize(kw))) found.push(kw);
+                else missing.push(kw);
+            });
+            return { found, missing, total: keywordList.length, count: found.length };
+        }
+
+        function evaluateContent() {
+            const sections = {
+                ctx: document.getElementById('mm-context').value,
+                a: document.getElementById('mm-a').value,
+                b: document.getElementById('mm-b').value,
+                c: document.getElementById('mm-c').value,
+                d: document.getElementById('mm-d').value,
+                e: document.getElementById('mm-e').value
+            };
+            const results = {};
+            let totalFound = 0, totalPossible = 0;
+            Object.keys(sections).forEach(key => {
+                const r = countKeywords(sections[key], KEYWORD_CLUSTERS[key].words);
+                results[key] = { ...r, label: KEYWORD_CLUSTERS[key].label };
+                totalFound += r.count;
+                totalPossible += r.total;
+            });
+            const globalPct = totalPossible > 0 ? (totalFound / totalPossible) : 0;
+            let score = 0;
+            if (globalPct >= 0.70) score = 3;
+            else if (globalPct >= 0.50) score = 1.5;
+            else if (globalPct > 0.20) score = 0.5;
+            else score = 0;
+            return { score, pct: globalPct, sections: results, totalFound, totalPossible };
+        }
+
+        function evaluateCausal() {
+            const fullText = normalize(
+                document.getElementById('mm-context').value + ' ' +
+                document.getElementById('mm-a').value + ' ' +
+                document.getElementById('mm-b').value + ' ' +
+                document.getElementById('mm-c').value + ' ' +
+                document.getElementById('mm-d').value + ' ' +
+                document.getElementById('mm-e').value
+            );
+            const usedConnectors = LOGICAL_CONNECTORS.filter(c => fullText.includes(normalize(c)));
+            const uniqueConnectors = [...new Set(usedConnectors)];
+            const hasSi = /\bsi\b/.test(fullText);
+            const hasEntonces = /\bentonces\b/.test(fullText);
+            const hasPorque = /\bporque\b/.test(fullText);
+            const hasYaQue = /\bya que\b/.test(fullText);
+
+            let varietyScore = 0;
+            if (uniqueConnectors.length >= 6) varietyScore = 1;
+            else if (uniqueConnectors.length >= 4) varietyScore = 0.75;
+            else if (uniqueConnectors.length >= 2) varietyScore = 0.5;
+            else if (uniqueConnectors.length >= 1) varietyScore = 0.25;
+
+            let structureScore = 0;
+            if (hasSi && hasEntonces) structureScore += 0.5;
+            if (hasPorque || hasYaQue) structureScore += 0.5;
+            structureScore = Math.min(structureScore, 1);
+
+            return {
+                score: varietyScore + structureScore,
+                varietyScore, structureScore,
+                connectors: uniqueConnectors, hasSi, hasEntonces, hasPorque, hasYaQue
+            };
+        }
+
+        function evaluateOrthography() {
+            const fields = ['mm-context','mm-a','mm-b','mm-c','mm-d','mm-e'];
+            let totalSentences = 0, missingCapital = 0, missingPunctuation = 0;
+            fields.forEach(id => {
+                const text = document.getElementById(id).value.trim();
+                if (!text) return;
+                const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 3);
+                sentences.forEach(s => {
+                    totalSentences++;
+                    const first = s.trim().charAt(0);
+                    if (first && first === first.toLowerCase() && /[a-záéíóúñ]/i.test(first)) missingCapital++;
+                });
+                if (!/[.!?]$/.test(text)) missingPunctuation++;
+            });
+            const totalErrors = missingCapital + missingPunctuation;
+            let score = 0;
+            if (totalErrors <= 1) score = 2;
+            else if (totalErrors <= 4) score = 1.5;
+            else if (totalErrors <= 7) score = 1;
+            else if (totalErrors <= 10) score = 0.5;
+            else score = 0;
+            return { score, missingCapital, missingPunctuation, totalErrors, totalSentences };
+        }
+
+        function evaluateCoherence() {
+            const allText = [
+                document.getElementById('mm-context').value,
+                document.getElementById('mm-a').value,
+                document.getElementById('mm-b').value,
+                document.getElementById('mm-c').value,
+                document.getElementById('mm-d').value,
+                document.getElementById('mm-e').value
+            ].join(' ');
+            const norm = normalize(allText);
+
+            const found = {};
+            let totalCount = 0;
+            THEME_ANCHORS.forEach(w => {
+                const re = new RegExp('\\b' + normalize(w) + '\\w*', 'g');
+                const matches = norm.match(re);
+                const count = matches ? matches.length : 0;
+                found[w] = count;
+                totalCount += count;
+            });
+
+            let score = 0;
+            if (totalCount >= 20) score = 1;
+            else if (totalCount >= 10) score = 0.5;
+            else score = 0;
+
+            return { score, totalCount, found, anchors: THEME_ANCHORS };
+        }
+
+        function runHeuristicEngine(timeInSeconds, autoScore) {
+            const e3 = evaluateContent();
+            const cau = evaluateCausal();
+            const ort = evaluateOrthography();
+            const coh = evaluateCoherence();
+            const total = Math.round((e3.score + cau.score + ort.score + autoScore + coh.score) * 100) / 100;
+            return { e3, cau, ort, coh, autoScore, total, timeInSeconds };
+        }
+
+        function generateFinalReport(res, timeSecs) {
+            try {
+                document.getElementById('final-name').innerText = document.getElementById('in-name').value;
+                document.getElementById('final-group').innerText = document.getElementById('in-group').value;
+                const m = String(Math.floor(timeSecs / 60)).padStart(2, '0');
+                const s = String(timeSecs % 60).padStart(2, '0');
+                document.getElementById('final-time').innerText = `${m} MIN ${s} SEG`;
+
+                document.getElementById('final-mm-title').innerText = document.getElementById('mm-title').value;
+                document.getElementById('final-mm-context').innerText = document.getElementById('mm-context').value;
+                document.getElementById('final-mm-a').innerText = document.getElementById('mm-a').value;
+                document.getElementById('final-mm-b').innerText = document.getElementById('mm-b').value;
+                document.getElementById('final-mm-c').innerText = document.getElementById('mm-c').value;
+                document.getElementById('final-mm-d').innerText = document.getElementById('mm-d').value;
+                document.getElementById('final-mm-e').innerText = document.getElementById('mm-e').value;
+
+                const e3Pct = Math.round(res.e3.pct * 100);
+                const cauPct = Math.round((res.cau.score / 2) * 100);
+                const ortPct = Math.round((res.ort.score / 2) * 100);
+                const autoPct = Math.round((res.autoScore / 2) * 100);
+                const cohPct = Math.round((res.coh.score / 1) * 100);
+                const totalPct = Math.round((res.total / 10) * 100);
+
+                document.getElementById('score-e3').innerText = `${res.e3.score.toFixed(1)}/3 · ${e3Pct}%`;
+                setTimeout(() => document.getElementById('bar-e3').style.width = `${e3Pct}%`, 500);
+                document.getElementById('score-cau').innerText = `${res.cau.score.toFixed(2)}/2 · ${cauPct}%`;
+                setTimeout(() => document.getElementById('bar-cau').style.width = `${cauPct}%`, 500);
+                document.getElementById('score-ort').innerText = `${res.ort.score.toFixed(1)}/2 · ${ortPct}%`;
+                setTimeout(() => document.getElementById('bar-ort').style.width = `${ortPct}%`, 500);
+                document.getElementById('score-auto').innerText = `${res.autoScore.toFixed(2)}/2 · ${autoPct}%`;
+                setTimeout(() => document.getElementById('bar-auto').style.width = `${autoPct}%`, 500);
+                document.getElementById('score-coh').innerText = `${res.coh.score.toFixed(1)}/1 · ${cohPct}%`;
+                setTimeout(() => document.getElementById('bar-coh').style.width = `${cohPct}%`, 500);
+
+                const gradeElement = document.getElementById('final-grade');
+                gradeElement.innerText = `${res.total}/10`;
+                if (res.total >= 9) gradeElement.className = 'big-grade text-mario-green';
+                else if (res.total >= 7) gradeElement.className = 'big-grade text-mario-yellow';
+                else if (res.total >= 5) gradeElement.className = 'big-grade text-mario-blue';
+                else gradeElement.className = 'big-grade text-mario-red';
+
+                document.getElementById('final-grade-pct').innerText = `Equivale al ${totalPct}% del total`;
+
+                renderDetailedFeedback(res, e3Pct, cauPct, ortPct, autoPct, cohPct);
+
+                document.body.className = "theme-success crt";
+                goToStep(4);
+            } catch (err) {
+                console.error('Error en generateFinalReport:', err);
+                document.body.className = "theme-success crt";
+                goToStep(4);
+            }
+        }
+
+        function renderDetailedFeedback(res, e3Pct, cauPct, ortPct, autoPct, cohPct) {
+            const container = document.getElementById('detailed-feedback');
+            let html = '';
+
+            const e3Class = res.e3.pct >= 0.70 ? 'ok' : res.e3.pct >= 0.50 ? 'warn' : 'bad';
+            html += `<div class="criteria-row ${e3Class}">`;
+            html += `<div class="title"><span>📌 CONTENIDO SEMÁNTICO (3 PTS)</span><span class="pct">${res.e3.score.toFixed(1)}/3 · ${e3Pct}%</span></div>`;
+            html += `<div class="evalua"><strong>¿Qué evalúa este rubro?</strong> Que uses el vocabulario técnico del tema en cada sección. Cada rama tiene palabras clave esperadas que ya viste marcadas en azul antes de escribir.</div>`;
+
+            html += `<p>Encontraste <strong>${res.e3.totalFound} de ${res.e3.totalPossible}</strong> palabras clave (${e3Pct}%).</p>`;
+
+            if (res.e3.pct >= 0.70) html += `<p style="color:#86e69a;">✅ ¡Excelente! Usaste el vocabulario técnico esperado en casi todas las secciones.</p>`;
+            else if (res.e3.pct >= 0.50) html += `<p style="color:#fada5e;">⚠️ Buen trabajo, pero puedes profundizar más. Faltó mencionar varios conceptos importantes del tema.</p>`;
+            else html += `<p style="color:#f5a3a8;">❌ Tu texto se aleja del tema central. Necesitas usar más vocabulario del proyecto.</p>`;
+
+            html += `<p style="margin-top:8px; color:#fada5e;"><strong>Detalle por sección:</strong></p><ul>`;
+            Object.keys(res.e3.sections).forEach(key => {
+                const s = res.e3.sections[key];
+                const pct = Math.round((s.count / s.total) * 100);
+                const icon = pct >= 70 ? '✅' : pct >= 50 ? '⚠️' : '❌';
+                html += `<li class="${pct >= 50 ? 'found' : 'missing'}">${icon} <strong>${s.label}:</strong> ${s.count}/${s.total} palabras (${pct}%)`;
+                if (s.missing.length > 0 && pct < 70) {
+                    html += `<br><span style="color:#f5c8c8; font-size:10px; margin-left:16px;">→ Intenta incluir: <em>${s.missing.slice(0, 6).join(', ')}</em></span>`;
+                }
+                html += `</li>`;
+            });
+            html += `</ul>`;
+
+            const faltantes = [];
+            Object.keys(res.e3.sections).forEach(key => {
+                res.e3.sections[key].missing.slice(0, 2).forEach(w => faltantes.push(w));
+            });
+            if (faltantes.length > 0) {
+                html += `<div class="mejora"><strong>💡 ¿Cómo mejorar?</strong> Revisa la caja azul de palabras clave antes de escribir cada sección. Si no las usas, el sistema no puede saber que dominas el tema. Intenta incluir al menos: <em>${faltantes.slice(0, 8).join(', ')}</em>.</div>`;
+            } else {
+                html += `<div class="mejora"><strong>💡 ¡Excelente!</strong> Usaste prácticamente todas las palabras clave esperadas.</div>`;
+            }
+            html += `</div>`;
+
+            const cauClass = cauPct >= 70 ? 'ok' : cauPct >= 50 ? 'warn' : 'bad';
+            html += `<div class="criteria-row ${cauClass}">`;
+            html += `<div class="title"><span>🔗 RELACIONES CAUSALES (2 PTS)</span><span class="pct">${res.cau.score.toFixed(2)}/2 · ${cauPct}%</span></div>`;
+            html += `<div class="evalua"><strong>¿Qué evalúa este rubro?</strong> Que conectes tus ideas con causa-efecto. Se premia usar <em>conectores variados</em> (porque, ya que, entonces, sin embargo...) y estructuras <em>"si...entonces..."</em> que plantean hipótesis.</div>`;
+
+            html += `<p><strong>Variedad de conectores (1 pt):</strong> usaste <strong>${res.cau.connectors.length} conectores distintos</strong> → ${res.cau.varietyScore.toFixed(2)} pts</p>`;
+            if (res.cau.connectors.length > 0) {
+                html += `<p style="color:#86e69a;">✔ Encontrados: <em>${res.cau.connectors.slice(0, 8).join(', ')}${res.cau.connectors.length > 8 ? '...' : ''}</em></p>`;
+            } else {
+                html += `<p style="color:#f5a3a8;">❌ No se detectaron conectores lógicos. Tus ideas parecen "sueltas".</p>`;
+            }
+            html += `<p style="margin-top:6px;"><strong>Estructura causal (1 pt):</strong> ${res.cau.structureScore.toFixed(2)} pts</p>`;
+            html += `<ul>`;
+            html += `<li class="${res.cau.hasSi && res.cau.hasEntonces ? 'found' : 'missing'}">${res.cau.hasSi && res.cau.hasEntonces ? '✅' : '❌'} Usaste estructura "si... entonces..." para plantear hipótesis</li>`;
+            html += `<li class="${res.cau.hasPorque || res.cau.hasYaQue ? 'found' : 'missing'}">${res.cau.hasPorque || res.cau.hasYaQue ? '✅' : '❌'} Usaste "porque" o "ya que" para explicar causas</li>`;
+            html += `</ul>`;
+
+            if (cauPct >= 80) html += `<div class="mejora"><strong>💡 ¡Excelente!</strong> Tus ideas están bien conectadas. Sigues una cadena lógica clara.</div>`;
+            else if (res.cau.connectors.length < 4) html += `<div class="mejora"><strong>💡 ¿Cómo mejorar?</strong> Prueba empezar tus ideas con: <em>porque, ya que, entonces, por lo tanto, sin embargo, además, debido a, en cambio</em>. No repitas siempre el mismo conector.</div>`;
+            else html += `<div class="mejora"><strong>💡 ¿Cómo mejorar?</strong> Intenta incluir al menos una oración con "si...entonces..." para plantear hipótesis. Ej: "Si el equipo se organiza bien, entonces terminaremos antes."</div>`;
+            html += `</div>`;
+
+            const ortClass = ortPct >= 70 ? 'ok' : ortPct >= 50 ? 'warn' : 'bad';
+            html += `<div class="criteria-row ${ortClass}">`;
+            html += `<div class="title"><span>✍️ FORMA Y ORTOGRAFÍA (2 PTS)</span><span class="pct">${res.ort.score.toFixed(1)}/2 · ${ortPct}%</span></div>`;
+            html += `<div class="evalua"><strong>¿Qué evalúa este rubro?</strong> Que cuides las <em>mayúsculas al inicio de cada oración</em> y los <em>signos de puntuación</em> (punto, signo de interrogación) al final de cada sección.</div>`;
+
+            html += `<p>Analizamos <strong>${res.ort.totalSentences} oraciones</strong>. Encontramos <strong>${res.ort.totalErrors} errores</strong> de forma.</p>`;
+            html += `<ul>`;
+            html += `<li class="${res.ort.missingCapital <= 2 ? 'found' : 'missing'}">${res.ort.missingCapital <= 2 ? '✅' : '❌'} <strong>Mayúsculas al inicio:</strong> ${res.ort.missingCapital} oración(es) sin mayúscula inicial</li>`;
+            html += `<li class="${res.ort.missingPunctuation <= 2 ? 'found' : 'missing'}">${res.ort.missingPunctuation <= 2 ? '✅' : '❌'} <strong>Signos de cierre:</strong> ${res.ort.missingPunctuation} sección(es) sin punto final</li>`;
+            html += `</ul>`;
+
+            if (res.ort.totalErrors <= 1) {
+                html += `<div class="mejora"><strong>💡 ¡Ortografía impecable!</strong> Sigue así.</div>`;
+            } else if (res.ort.totalErrors <= 4) {
+                html += `<div class="mejora"><strong>💡 ¿Cómo mejorar?</strong> Antes de enviar, relee tu texto de arriba a abajo: verifica que cada oración empiece con MAYÚSCULA y termine con un signo (. ! ?).</div>`;
+            } else {
+                html += `<div class="mejora"><strong>💡 ¿Cómo mejorar?</strong> Hay varios errores. Te sugerimos: (1) Poner mayúscula después de cada punto. (2) Escribir un punto final en cada sección. (3) Leer el texto en voz alta ayuda a detectar faltas.</div>`;
+            }
+            html += `</div>`;
+
+            const autoClass = autoPct >= 70 ? 'ok' : autoPct >= 50 ? 'warn' : 'bad';
+            html += `<div class="criteria-row ${autoClass}">`;
+            html += `<div class="title"><span>🧭 AUTOEVALUACIÓN (2 PTS)</span><span class="pct">${res.autoScore.toFixed(2)}/2 · ${autoPct}%</span></div>`;
+            html += `<div class="evalua"><strong>¿Qué evalúa este rubro?</strong> Que marques con sinceridad los aspectos que completaste con profundidad. Cada uno de los 6 aspectos vale 0.33 pts.</div>`;
+
+            html += `<p>Marcaste <strong>${Math.round(res.autoScore / (2/6))} de 6</strong> aspectos como completados.</p>`;
+
+            const textQuality = (res.e3.pct + res.cau.score / 2 + (res.coh.score / 1)) / 3;
+            if (res.autoScore / 2 > textQuality + 0.25) {
+                html += `<p style="color:#fada5e;">⚠️ Notamos que te evaluaste muy alto, pero algunos criterios objetivos del texto fueron más bajos.</p>`;
+                html += `<div class="mejora"><strong>💡 ¿Cómo mejorar?</strong> La autoevaluación honesta es una habilidad clave. Antes de marcar un aspecto, pregúntate: <em>"¿realmente incluí ejemplos y detalles?"</em>. Es mejor reconocer lo que falta para poder mejorar.</div>`;
+            } else if (res.autoScore / 2 < textQuality - 0.25) {
+                html += `<p style="color:#fada5e;">💡 Te evaluaste más bajo de lo que tu texto demuestra.</p>`;
+                html += `<div class="mejora"><strong>💡 ¿Cómo mejorar?</strong> ¡Confía más en tu trabajo! Si incluiste los elementos pedidos, márcalos. La autoevaluación no es "ser humilde", es ser <em>preciso</em>.</div>`;
+            } else {
+                html += `<p style="color:#86e69a;">✅ Tu autoevaluación es coherente con la calidad de tu texto.</p>`;
+                html += `<div class="mejora"><strong>💡 ¡Excelente metacognición!</strong> Reconoces con precisión lo que hiciste bien y lo que falta. Sigue así.</div>`;
+            }
+            html += `</div>`;
+
+            const cohClass = cohPct >= 70 ? 'ok' : cohPct >= 50 ? 'warn' : 'bad';
+            html += `<div class="criteria-row ${cohClass}">`;
+            html += `<div class="title"><span>🎯 COHERENCIA TEMÁTICA (1 PT)</span><span class="pct">${res.coh.score.toFixed(1)}/1 · ${cohPct}%</span></div>`;
+            html += `<div class="evalua"><strong>¿Qué evalúa este rubro?</strong> Que todo tu texto gire en torno al tema. Se cuentan cuántas veces aparecen las <strong>4 palabras ancla</strong> del tema en todo tu trabajo.</div>`;
+
+            html += `<p><strong>Palabras ancla del tema:</strong> residuo · recolección · planificación · comunidad</p>`;
+            html += `<p>Total de apariciones en todo tu texto: <strong>${res.coh.totalCount}</strong></p>`;
+            html += `<ul>`;
+            Object.keys(res.coh.found).forEach(w => {
+                const count = res.coh.found[w];
+                const icon = count >= 3 ? '✅' : count >= 1 ? '⚠️' : '❌';
+                html += `<li class="${count >= 3 ? 'found' : 'missing'}">${icon} <em>${w}</em>: ${count} aparición(es)</li>`;
+            });
+            html += `</ul>`;
+
+            if (res.coh.totalCount >= 20) html += `<p style="color:#86e69a;">✅ Tu texto se mantiene enfocado en el tema. ¡Bien!</p>`;
+            else if (res.coh.totalCount >= 10) html += `<p style="color:#fada5e;">⚠️ Mencionas el tema, pero podrías reforzarlo más.</p>`;
+            else html += `<p style="color:#f5a3a8;">❌ Muy pocas menciones al tema central.</p>`;
+
+            if (res.coh.totalCount < 20) {
+                const faltantesCoh = [];
+                Object.keys(res.coh.found).forEach(w => { if (res.coh.found[w] < 3) faltantesCoh.push(w); });
+                html += `<div class="mejora"><strong>💡 ¿Cómo mejorar?</strong> Para asegurar coherencia temática, repite naturalmente las palabras ancla: <em>${faltantesCoh.join(', ')}</em>. No es "rellenar": es mantener el hilo conductor del mapa mental sobre recolección de residuos.</div>`;
+            } else {
+                html += `<div class="mejora"><strong>💡 ¡Excelente coherencia!</strong> Todo tu texto gira en torno al proyecto de recolección.</div>`;
+            }
+            html += `</div>`;
+
+            container.innerHTML = html;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        function takeScreenshot() {
+            const btn = document.getElementById('screenshotBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ CAPTURANDO...';
+            btn.disabled = true;
+            const area = document.getElementById('capture-area');
+            const fullWidth = area.scrollWidth;
+            const fullHeight = area.scrollHeight;
+
+            html2canvas(area, {
+                backgroundColor: '#ffffff',
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                scrollX: 0,
+                scrollY: -window.scrollY,
+                windowWidth: fullWidth,
+                windowHeight: fullHeight,
+                width: fullWidth,
+                height: fullHeight,
+                onclone: function(clonedDoc) {
+                    clonedDoc.querySelectorAll('svg').forEach(svg => {
+                        const rect = svg.getBoundingClientRect();
+                        svg.setAttribute('width', rect.width);
+                        svg.setAttribute('height', rect.height);
+                    });
+                }
+            }).then(canvas => {
+                const name = (document.getElementById('in-name').value || 'Estudiante').replace(/\s+/g, '_');
+                const link = document.createElement('a');
+                link.download = `MapaMental_PAEC_${name}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showToast('✔ ¡CAPTURA DESCARGADA!');
+            }).catch(err => {
+                console.error(err);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showToast('✗ ERROR AL CAPTURAR');
+            });
+        }
+
+        window.addEventListener('load', () => {
+            updateSelfAssessment();
+            updateTotal();
+        });
+    </script>
+</body>
+</html>
